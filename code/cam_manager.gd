@@ -22,3 +22,4 @@ func _process(_delta: float):
 		return
 	var show_cam_ui := offic.cams_on and offic.cam_transition_done
 	text.visible = show_cam_ui
+# пжалуста
