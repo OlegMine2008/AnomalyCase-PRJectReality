@@ -1,0 +1,280 @@
+[gd_scene load_steps=22 format=3 uid="uid://e5ohsimiuqvw"]
+
+[ext_resource type="Script" uid="uid://cagn47vbj4bnw" path="res://code/camera_3d.gd" id="2_72e8q"]
+[ext_resource type="PackedScene" uid="uid://6wx18ppm1x8x" path="res://models/office/Roons.glb" id="2_d2op2"]
+[ext_resource type="Script" uid="uid://8fm0qtsm0317" path="res://code/flashlight.gd" id="3_d2op2"]
+[ext_resource type="Texture2D" uid="uid://ci3w5ykboo8dj" path="res://images/cam_menu.png" id="4_0rdsr"]
+[ext_resource type="Script" uid="uid://be1knwy4bvkbb" path="res://code/cam_manager.gd" id="4_ipu61"]
+[ext_resource type="Script" uid="uid://cjbg7u2s0u46a" path="res://code/cameras.gd" id="5_8m8gb"]
+[ext_resource type="Texture2D" uid="uid://c1y4fpaotbr5x" path="res://images/unchoosed.png" id="6_wi4c7"]
+[ext_resource type="Texture2D" uid="uid://82wwf4aryaen" path="res://images/choosed.png" id="7_70vka"]
+[ext_resource type="Texture2D" uid="uid://bc3u6ybbq6hsm" path="res://images/map_cams.png" id="8_70vka"]
+[ext_resource type="Texture2D" uid="uid://dd0ddpdektxsl" path="res://images/cameras/background/back_o.png" id="9_nqdth"]
+[ext_resource type="Texture2D" uid="uid://c70x1fnbjswh6" path="res://images/cameras/behind/behind_o.png" id="10_o6v7o"]
+[ext_resource type="Texture2D" uid="uid://bjedqx7xjlbf7" path="res://images/cameras/corridor/corr_f.png" id="11_wjob3"]
+[ext_resource type="Texture2D" uid="uid://b31htdxs2sug3" path="res://images/cameras/kids/kids_o.png" id="12_wjob3"]
+[ext_resource type="Texture2D" uid="uid://byfmpoiyj3ynb" path="res://images/cameras/kitchen/kitchen_f.png" id="13_sp04v"]
+[ext_resource type="Texture2D" uid="uid://cvpbfpkyr6iec" path="res://images/cameras/storage/storag.png" id="14_ihbck"]
+[ext_resource type="Script" uid="uid://cv55jqnsypf4" path="res://code/felix_ai.gd" id="15_k26l4"]
+[ext_resource type="Texture2D" uid="uid://bvarct5soqx4x" path="res://images/noise1.png" id="16_ikqpi"]
+[ext_resource type="Script" uid="uid://cb65yangpb4ws" path="res://code/ai_manager.gd" id="16_vnsdt"]
+
+[sub_resource type="Environment" id="Environment_vnsdt"]
+ambient_light_source = 2
+tonemap_exposure = 0.5
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_vnsdt"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("16_ikqpi")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_2l77h"]
+load_path = "res://.godot/imported/eatery_of.png-c67158c051dc0b046231e7dcf580dab2.ctex"
+
+[node name="Office" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_vnsdt")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 1.7484555e-07, 0, 1, 0, -1.7484555e-07, 0, 1, -0.19636297, -0.87956536, -2.54708)
+script = ExtResource("2_72e8q")
+
+[node name="Roons" parent="." instance=ExtResource("2_d2op2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -8.036169)
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.798401, 0)
+light_color = Color(0.9999984, 0.9959833, 0.6065989, 1)
+light_energy = 16.0
+shadow_enabled = true
+omni_range = 11.727
+
+[node name="Flashlight" type="SpotLight3D" parent="."]
+shadow_enabled = true
+spot_range = 18.0
+spot_attenuation = -0.6
+spot_angle = 23.3
+spot_angle_attenuation = 0.73204345
+script = ExtResource("3_d2op2")
+
+[node name="Cam_Sys" type="Node2D" parent="." node_paths=PackedStringArray("cams", "offic")]
+script = ExtResource("4_ipu61")
+cams = NodePath("Cam_Buttons")
+offic = NodePath("../Camera3D")
+
+[node name="CamMenu" type="Sprite2D" parent="Cam_Sys"]
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("4_0rdsr")
+
+[node name="Camera2D" type="Camera2D" parent="Cam_Sys"]
+
+[node name="Cam_HUD" type="Node2D" parent="Cam_Sys"]
+
+[node name="Sprite2D" type="Sprite2D" parent="Cam_Sys/Cam_HUD"]
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("8_70vka")
+
+[node name="seen_mode" type="TextureButton" parent="Cam_Sys/Cam_HUD"]
+offset_left = -576.0
+offset_top = -324.0
+offset_right = -382.0
+offset_bottom = -299.0
+
+[node name="true_mode" type="TextureButton" parent="Cam_Sys/Cam_HUD"]
+offset_left = -382.0
+offset_top = -324.0
+offset_right = -188.0
+offset_bottom = -299.0
+
+[node name="StaticPC" type="AnimatedSprite2D" parent="Cam_Sys/Cam_HUD"]
+visible = false
+position = Vector2(-12, -6.75)
+scale = Vector2(0.735, 0.735)
+sprite_frames = SubResource("SpriteFrames_vnsdt")
+
+[node name="Cam_Buttons" type="Node2D" parent="Cam_Sys" node_paths=PackedStringArray("offic")]
+script = ExtResource("5_8m8gb")
+offic = NodePath("../../Camera3D")
+
+[node name="eatery_but" type="TextureButton" parent="Cam_Sys/Cam_Buttons"]
+light_mask = 2
+visibility_layer = 2
+z_index = 1
+offset_left = 406.00003
+offset_top = -76.0
+offset_right = 506.00003
+offset_bottom = -7.0
+scale = Vector2(0.6, 0.6)
+texture_normal = ExtResource("6_wi4c7")
+texture_pressed = ExtResource("7_70vka")
+
+[node name="child_but" type="TextureButton" parent="Cam_Sys/Cam_Buttons"]
+light_mask = 2
+visibility_layer = 2
+z_index = 1
+offset_left = 278.99994
+offset_top = 34.000015
+offset_right = 378.99994
+offset_bottom = 103.000015
+scale = Vector2(0.6, 0.6)
+texture_normal = ExtResource("6_wi4c7")
+texture_pressed = ExtResource("7_70vka")
+
+[node name="kitchen_but" type="TextureButton" parent="Cam_Sys/Cam_Buttons"]
+light_mask = 2
+visibility_layer = 2
+z_index = 1
+offset_left = 437.00003
+offset_top = 66.0
+offset_right = 537.0
+offset_bottom = 135.0
+scale = Vector2(0.6, 0.6)
+texture_normal = ExtResource("6_wi4c7")
+texture_pressed = ExtResource("7_70vka")
+
+[node name="corrid_but" type="TextureButton" parent="Cam_Sys/Cam_Buttons"]
+light_mask = 2
+visibility_layer = 2
+z_index = 1
+offset_left = 269.9999
+offset_top = 96.99999
+offset_right = 369.9999
+offset_bottom = 166.0
+scale = Vector2(0.6, 0.6)
+texture_normal = ExtResource("6_wi4c7")
+texture_pressed = ExtResource("7_70vka")
+
+[node name="salvag_but" type="TextureButton" parent="Cam_Sys/Cam_Buttons"]
+light_mask = 2
+visibility_layer = 2
+z_index = 1
+offset_left = 139.99992
+offset_top = -191.00006
+offset_right = 239.99992
+offset_bottom = -122.00006
+scale = Vector2(0.6, 0.6)
+texture_normal = ExtResource("6_wi4c7")
+texture_pressed = ExtResource("7_70vka")
+
+[node name="way_but" type="TextureButton" parent="Cam_Sys/Cam_Buttons"]
+light_mask = 2
+visibility_layer = 2
+z_index = 1
+offset_left = 97.999985
+offset_top = -7.9999695
+offset_right = 197.99998
+offset_bottom = 61.00003
+scale = Vector2(0.6, 0.6)
+texture_normal = ExtResource("6_wi4c7")
+texture_pressed = ExtResource("7_70vka")
+
+[node name="behind_but" type="TextureButton" parent="Cam_Sys/Cam_Buttons"]
+light_mask = 2
+visibility_layer = 2
+z_index = 1
+offset_left = 170.99997
+offset_top = 173.00003
+offset_right = 270.99997
+offset_bottom = 242.00005
+scale = Vector2(0.6, 0.6)
+texture_normal = ExtResource("6_wi4c7")
+texture_pressed = ExtResource("7_70vka")
+
+[node name="lab_but" type="TextureButton" parent="Cam_Sys/Cam_Buttons"]
+light_mask = 2
+visibility_layer = 2
+z_index = 1
+offset_left = 444.00003
+offset_top = 145.99998
+offset_right = 544.00006
+offset_bottom = 215.0
+scale = Vector2(0.6, 0.6)
+texture_normal = ExtResource("6_wi4c7")
+texture_pressed = ExtResource("7_70vka")
+
+[node name="secret_but" type="TextureButton" parent="Cam_Sys/Cam_Buttons"]
+light_mask = 2
+visibility_layer = 2
+z_index = 1
+offset_left = 53.0
+offset_top = -189.0
+offset_right = 153.0
+offset_bottom = -120.0
+scale = Vector2(0.6, 0.6)
+texture_normal = ExtResource("6_wi4c7")
+texture_pressed = ExtResource("7_70vka")
+
+[node name="Cam_Rooms" type="Node2D" parent="Cam_Sys"]
+
+[node name="Eatery" type="Sprite2D" parent="Cam_Sys/Cam_Rooms"]
+visible = false
+position = Vector2(-266.00003, 11.999996)
+scale = Vector2(0.6, 0.6)
+texture = SubResource("CompressedTexture2D_2l77h")
+
+[node name="Back" type="Sprite2D" parent="Cam_Sys/Cam_Rooms"]
+visible = false
+position = Vector2(-266, 12)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("9_nqdth")
+
+[node name="Behind" type="Sprite2D" parent="Cam_Sys/Cam_Rooms"]
+visible = false
+position = Vector2(-266, 12)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("10_o6v7o")
+
+[node name="Corr" type="Sprite2D" parent="Cam_Sys/Cam_Rooms"]
+visible = false
+position = Vector2(-266, 12)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("11_wjob3")
+
+[node name="Kids" type="Sprite2D" parent="Cam_Sys/Cam_Rooms"]
+visible = false
+position = Vector2(-266, 12)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("12_wjob3")
+
+[node name="Kitchen" type="Sprite2D" parent="Cam_Sys/Cam_Rooms"]
+visible = false
+position = Vector2(-266, 12)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("13_sp04v")
+
+[node name="Storage" type="Sprite2D" parent="Cam_Sys/Cam_Rooms"]
+visible = false
+position = Vector2(-266, 12)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("14_ihbck")
+
+[node name="Enemies" type="Node" parent="."]
+script = ExtResource("16_vnsdt")
+
+[node name="OlegTheCat" type="Node" parent="Enemies"]
+
+[node name="OlegTime" type="Timer" parent="Enemies/OlegTheCat"]
+
+[node name="FelixTheWolf" type="Node" parent="Enemies"]
+script = ExtResource("15_k26l4")
+
+[node name="FelixTime" type="Timer" parent="Enemies/FelixTheWolf"]
+
+[node name="BortsunTheEagle" type="Node" parent="Enemies"]
+
+[node name="BortsunTime" type="Timer" parent="Enemies/BortsunTheEagle"]
+
+[node name="AtomOS" type="Node" parent="Enemies"]
+
+[node name="AtomTime" type="Timer" parent="Enemies/AtomOS"]
+
+[node name="CAT" type="Node" parent="Enemies"]
+
+[node name="TIME" type="Timer" parent="Enemies/CAT"]
