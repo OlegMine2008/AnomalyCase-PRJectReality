@@ -83,12 +83,14 @@ scale = Vector2(0.6, 0.6)
 texture = ExtResource("8_70vka")
 
 [node name="seen_mode" type="TextureButton" parent="Cam_Sys/Cam_HUD"]
+visible = false
 offset_left = -576.0
 offset_top = -324.0
 offset_right = -382.0
 offset_bottom = -299.0
 
 [node name="true_mode" type="TextureButton" parent="Cam_Sys/Cam_HUD"]
+visible = false
 offset_left = -382.0
 offset_top = -324.0
 offset_right = -188.0
