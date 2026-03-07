@@ -30,58 +30,72 @@ func b():
 	elif eatery:
 		var rng = randf_range( 1, 4)
 		if rng >= 2:
+			_apply_room_transition("eatery_to_kitchen")
 			cams.set_camera_state('Kitchen', 1)
 		else:
+			_apply_room_transition("eatery_to_storage")
 			cams.set_camera_state('Storage', 1)
-#	elif child == true:
-#		$bap.play("backstagetodiningarea")
+	elif child:
+		# No bap animation node in this project: apply the same transition directly.
+		_apply_room_transition("child_to_eatery")
+		cams.set_camera_state('Eatery', 1)
 	elif kitchen:
 		var rng = randf_range( 1, 4)
 		if rng >= 2:
+			_apply_room_transition("kitchen_to_corrid")
 			# corrid
 			cams.set_camera_state('Corr', 1)
 	elif salvag:
 		var rng = randf_range( 1, 4)
 		if rng >= 2:
+			_apply_room_transition("storage_to_way")
 			# way
 			cams.set_camera_state('Corr', 1)
 	elif corrid or way:
 		# К офису
 		var rng = randf_range( 1, 4)
 		if rng >= 2:
-			pass
+			_apply_room_transition("corrid_to_office")
 
 
-# Смена позиций в переменных
-func _on_bap_animation_started(anim):
-	if anim == "mainstagetodiningarea":
+# Updates only Oleg position flags.
+# We keep partial flag updates (no global reset) to preserve current behavior.
+# Transition names are room-based because old 3D animation keys are not used here.
+func _apply_room_transition(transition: String) -> void:
+	if transition == "eatery_to_kitchen":
 		eatery = false
 		kitchen = true
-	elif anim == "mainstagetobackstage":
+	elif transition == "eatery_to_storage":
 		eatery = false
 		salvag = true
-	elif anim == "diningareatowesthall":
+	elif transition == "eatery_to_child":
 		eatery = false
 		child = true
-	elif anim == "backstagetodiningarea":
+	elif transition == "child_to_eatery":
 		child = false
 		eatery = true
-	elif anim == "supplyclosettodiningarea":
+	elif transition == "kitchen_to_eatery":
 		kitchen = false
 		eatery = true
-	elif anim == "supplyclosettooffice":
+	elif transition == "corrid_to_office":
 		corrid = false
 		office = true
-	elif anim == "westhalltosupplycloset":
+	elif transition == "storage_to_kitchen":
 		salvag = false
 		kitchen = true
-	elif anim == "officetomainstage":
+	elif transition == "office_to_eatery":
 		canjumpscare = false
 		office = false
 		eatery = true
-	elif anim == "readyjumpscare":
+	elif transition == "office_ready_jumpscare":
 		canjumpscare = true
 		office = false
+	elif transition == "kitchen_to_corrid":
+		kitchen = false
+		corrid = true
+	elif transition == "storage_to_way":
+		salvag = false
+		way = true
 
 # Сам процесс интеллекта
 func _on_btimer_timeout():
@@ -100,40 +114,3 @@ func _on_btimer_timeout():
 #	canjumpscare = false
 #	eatery = true
 #	$bap.play("RESET")
-
-# Тут скорее всего в оригинальном коде - местоположение и видимость для игрока
-#func one_two():
-#	if $"../../player".currentcam == 1 or $"../../player".currentcam == 2:
-#		$"../../player".camstatic()
-
-#func two_three():
-#	if $"../../player".currentcam == 2 or $"../../player".currentcam == 3:
-#		$"../../player".camstatic()
-
-#func one_three():
-#	if $"../../player".currentcam == 1 or $"../../player".currentcam == 3:
-#		$"../../player".camstatic()
-
-#func two_six():
-#	if $"../../player".currentcam == 2 or $"../../player".currentcam == 6:
-#		$"../../player".camstatic()
-
-#func one_seven():
-#	if $"../../player".currentcam == 1 or $"../../player".currentcam == 7:
-#		$"../../player".camstatic()
-
-#func two_five():
-#	if $"../../player".currentcam == 2 or $"../../player".currentcam == 5:
-#		$"../../player".camstatic()
-
-#func five_seven():
-#	if $"../../player".currentcam == 5 or $"../../player".currentcam == 7:
-#		$"../../player".camstatic()
-
-#func three():
-#	if $"../../player".currentcam == 3:
-#		$"../../player".camstatic()
-
-#func six_seven():
-#	if $"../../player".currentcam == 6 or $"../../player".currentcam == 7:
-#		$"../../player".camstatic()
