@@ -21,37 +21,36 @@ var canjumpscare = false
 # Пока пустая функция самого перемещения(обновить на лабиринтный алгоритм)
 func b():
 	pass
-#	if eatery:
-#		var rng = randf_range( 1, 4)
-#		if rng >= 2:
-#			cams.set_camera_state('Eatery', 1)
-#		else:
-#			$bap.play("mainstagetobackstage")
-#	elif kitchen:
-#		var rng = randf_range( 1, 4)
-#		if rng >= 2:
-#			$bap.play("diningareatowesthall")
-#		else:
-#			$bap.play("diningareatobackstage")
+	if eatery_calm:
+		var rng = randf_range( 1, 4)
+		if rng >= 2:
+			cams.set_camera_state('Eatery', 1)
+		else:
+			cams.set_camera_state('Eatery', 1)
+	elif eatery:
+		var rng = randf_range( 1, 4)
+		if rng >= 2:
+			cams.set_camera_state('Kitchen', 1)
+		else:
+			cams.set_camera_state('Storage', 1)
 #	elif child == true:
 #		$bap.play("backstagetodiningarea")
-#	elif corrid == true:
-#		var rng = randf_range( 1, 4)
-#		if rng >= 2:
-#			$bap.play("supplyclosettooffice")
-#		else:
-#			$bap.play("supplyclosettodiningarea")
-#	elif office == true:
-#		$bap.play("readyjumpscare")
-#	elif canjumpscare and $"../../interactable/leftredofficebutton".on == false:
-#		$"../../player".camcanrotate = false
-#		if $"../../player".camopen:
-#			$"../../player/cameratabap".play("cameratabclose2")
-#		$"../../player/effects/camtransitionap".play("camtransition2")
-#		$bap.play("jumpscare")
-#	elif canjumpscare and $"../../interactable/leftredofficebutton".on:
-#		$"../../player/doorhit".play()
-#		$bap.play("officetomainstage")
+	elif kitchen:
+		var rng = randf_range( 1, 4)
+		if rng >= 2:
+			# corrid
+			cams.set_camera_state('Corr', 1)
+	elif salvag:
+		var rng = randf_range( 1, 4)
+		if rng >= 2:
+			# way
+			cams.set_camera_state('Corr', 1)
+	elif corrid or way:
+		# К офису
+		var rng = randf_range( 1, 4)
+		if rng >= 2:
+			pass
+
 
 # Смена позиций в переменных
 func _on_bap_animation_started(anim):
