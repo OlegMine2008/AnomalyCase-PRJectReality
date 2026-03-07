@@ -1,30 +1,33 @@
 extends Node
 
-@export_range(0, 20) var oleg_level: int
-@export_range(0, 20) var felix_level: int
-
+#@export_range(0, 20, 1) var oleg_level: int = 0
+#@export_range(0, 20, 1) var felix_level: int = 0
+var oleg_level = 30
+var felix_level = 10
 
 func _ready() -> void:
-	randomize() # Sets new RNG seed
+	randomize()
 	_initialize_char_levels()
 
-
 func _initialize_char_levels() -> void:
-	var felix: Node = get_node_or_null("FelixTheWolf")
-	if felix == null:
-		push_error("FelixTheWolf node was not found under Enemies.")
-		return
+	var cams: Cameras = get_node_or_null("../Cam_Sys/Cam_Buttons") as Cameras
+	var oleg: Node = get_node_or_null("OlegTheCat")
 
-	if felix is AI:
-		var felix_ai: AI = felix as AI
-		felix_ai.ai_level = felix_level
-		felix_ai.character = 1 # Felix index in Cameras.gd state map
-
-		if felix_ai.camera == null:
-			var cameras_node: Node = get_node_or_null("../Cam_Sys/Cam_Buttons")
-			if cameras_node is Cameras:
-				felix_ai.camera = cameras_node as Cameras
-			else:
-				push_warning("Cameras node not found at ../Cam_Sys/Cam_Buttons, Felix visual state sync is disabled.")
+	if oleg != null:
+		oleg.set("bdifficulty", oleg_level)
+		if cams != null and oleg.get("cams") == null:
+			oleg.set("cams", cams)
 	else:
-		push_error("FelixTheWolf must inherit AI. Current script: %s" % [felix.get_script()])
+		push_error("OlegTheCat node was not found under Enemies.")
+
+	var felix: AI = get_node_or_null("FelixTheWolf") as AI
+
+	if felix == null:
+		push_error("FelixTheWolf node was not found under Enemies or does not inherit AI.")
+		return
+	felix.ai_level = felix_level
+	felix.character = 1
+	if felix.camera == null:
+		if cams != null: felix.camera = cams
+		else:
+			push_warning("Cameras node not found at ../Cam_Sys/Cam_Buttons, Felix visual state sync is disabled.")
