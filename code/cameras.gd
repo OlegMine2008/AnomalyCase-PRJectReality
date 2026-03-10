@@ -9,7 +9,7 @@ const BUTTON_TO_FEED: Dictionary[String, String] = {
 	"kitchen_but": "Kitchen",
 	"corrid_but": "Corr",
 	"salvag_but": "Storage",
-	"way_but": "Corr",
+	"way_but": "Way",
 	"behind_but": "Behind",
 }
 const CAMERAS_IMAGES: Dictionary = {
@@ -28,6 +28,10 @@ const CAMERAS_IMAGES: Dictionary = {
 		'Felix': 'res://images/cameras/kitchen/kitchen_f.png'
 	},
 	'Corr': {
+		'Empty': 'res://images/cameras/corridor/corr.png', 
+		'Oleg': 'res://images/cameras/corridor/corr_o.png', 'Felix': 'res://images/cameras/corridor/corr_f.png'
+		},
+	'Way': {
 		'Empty': 'res://images/cameras/corridor/corr.png', 
 		'Oleg': 'res://images/cameras/corridor/corr_o.png', 'Felix': 'res://images/cameras/corridor/corr_f.png'
 		},
