@@ -50,7 +50,7 @@ func b():
 		if rng >= 2:
 			_apply_room_transition("storage_to_way")
 			# way
-			cams.set_camera_state('Corr', 1)
+			cams.set_camera_state('Way', 1)
 	elif corrid or way:
 		# К офису
 		var rng = randf_range( 1, 4)
