@@ -22,7 +22,7 @@
 
 [sub_resource type="Environment" id="Environment_vnsdt"]
 ambient_light_source = 2
-tonemap_exposure = 0.5
+ambient_light_energy = 0.9
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_vnsdt"]
 animations = [{
@@ -235,6 +235,12 @@ scale = Vector2(0.6, 0.6)
 texture = ExtResource("10_o6v7o")
 
 [node name="Corr" type="Sprite2D" parent="Cam_Sys/Cam_Rooms"]
+visible = false
+position = Vector2(-266, 12)
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("11_wjob3")
+
+[node name="Way" type="Sprite2D" parent="Cam_Sys/Cam_Rooms"]
 visible = false
 position = Vector2(-266, 12)
 scale = Vector2(0.6, 0.6)

@@ -53,12 +53,15 @@ func b():
 	elif salvag:
 		if randf_range(1, 4) >= 2:
 			_apply_room_transition("storage_to_way")
-			_sync_camera_move(from_room, "Corr")
+			_sync_camera_move(from_room, "Way")
 	elif corrid or way:
 		if randf_range(1, 4) >= 2:
 			_apply_room_transition("corrid_to_office")
 			# В офисе отдельной камеры нет, поэтому Oleg уходит с текущей камеры.
 			_sync_camera_move(from_room, "")
+	elif office:
+		_apply_room_transition("office_to_eatery")
+		_sync_camera_move("", "Eatery")
 
 # Обновляет только флаги позиций (частичный сброс сохранен).
 func _apply_room_transition(transition: String) -> void:
@@ -106,8 +109,10 @@ func _get_oleg_room_name_from_flags() -> String:
 		return "Kitchen"
 	if salvag:
 		return "Storage"
-	if corrid or way:
+	if corrid:
 		return "Corr"
+	if way:
+		return "Way"
 	return ""
 
 func _get_room_state(room_name: String) -> int:
@@ -156,6 +161,11 @@ func _ready() -> void:
 		oleg_time.start()
 
 func _on_oleg_time_timeout() -> void:
+	# После офиса Oleg должен гарантированно выйти обратно на сцену
+	# на следующем тике таймера, без дополнительной проверки difficulty.
+	if office:
+		b()
+		return
 	if randf_range(1, 20) <= bdifficulty:
 		b()
 
