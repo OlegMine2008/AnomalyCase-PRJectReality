@@ -1,10 +1,16 @@
-extends Node
+﻿extends Node
 
 @export var cams: Cameras
+@onready var oleg_time: Timer = $OlegTime
+
+const STATE_EMPTY := 0
+const STATE_OLEG := 1
+const STATE_FELIX := 2
+const STATE_EVERY := 3
 
 # Уровень ИИ
 var bdifficulty = 0
-# Камеры
+# Позиции Oleg по комнатам
 var eatery_calm = true
 var eatery = false
 var child = false
@@ -13,54 +19,48 @@ var corrid = false
 var salvag = false
 var way = false
 var office = false
-# Эти - для 3D пространства офиса, то есть слева-справа офиса и может ли атаковать
+# Эти флаги пока не используются
 var officeleft = false
 var officeright = false
 var canjumpscare = false
 
-# Пока пустая функция самого перемещения(обновить на лабиринтный алгоритм)
+# Основная логика перемещения (без подготовки под лабиринт)
 func b():
-	pass
+	if not _ensure_cams():
+		return
+
+	var from_room: String = _get_oleg_room_name_from_flags()
+
 	if eatery_calm:
-		var rng = randf_range( 1, 4)
-		if rng >= 2:
-			cams.set_camera_state('Eatery', 1)
-		else:
-			cams.set_camera_state('Eatery', 1)
+		_sync_camera_move(from_room, "Eatery")
+		# После первого шага выходим из calm-режима.
+		eatery_calm = false
+		eatery = true
 	elif eatery:
-		var rng = randf_range( 1, 4)
-		if rng >= 2:
+		if randf_range(1, 4) >= 2:
 			_apply_room_transition("eatery_to_kitchen")
-			cams.set_camera_state('Kitchen', 1)
+			_sync_camera_move(from_room, "Kitchen")
 		else:
 			_apply_room_transition("eatery_to_storage")
-			cams.set_camera_state('Storage', 1)
+			_sync_camera_move(from_room, "Storage")
 	elif child:
-		# No bap animation node in this project: apply the same transition directly.
 		_apply_room_transition("child_to_eatery")
-		cams.set_camera_state('Eatery', 1)
+		_sync_camera_move(from_room, "Eatery")
 	elif kitchen:
-		var rng = randf_range( 1, 4)
-		if rng >= 2:
+		if randf_range(1, 4) >= 2:
 			_apply_room_transition("kitchen_to_corrid")
-			# corrid
-			cams.set_camera_state('Corr', 1)
+			_sync_camera_move(from_room, "Corr")
 	elif salvag:
-		var rng = randf_range( 1, 4)
-		if rng >= 2:
+		if randf_range(1, 4) >= 2:
 			_apply_room_transition("storage_to_way")
-			# way
-			cams.set_camera_state('Corr', 1)
+			_sync_camera_move(from_room, "Corr")
 	elif corrid or way:
-		# К офису
-		var rng = randf_range( 1, 4)
-		if rng >= 2:
+		if randf_range(1, 4) >= 2:
 			_apply_room_transition("corrid_to_office")
+			# В офисе отдельной камеры нет, поэтому Oleg уходит с текущей камеры.
+			_sync_camera_move(from_room, "")
 
-
-# Updates only Oleg position flags.
-# We keep partial flag updates (no global reset) to preserve current behavior.
-# Transition names are room-based because old 3D animation keys are not used here.
+# Обновляет только флаги позиций (частичный сброс сохранен).
 func _apply_room_transition(transition: String) -> void:
 	if transition == "eatery_to_kitchen":
 		eatery = false
@@ -97,20 +97,68 @@ func _apply_room_transition(transition: String) -> void:
 		salvag = false
 		way = true
 
-# Сам процесс интеллекта
-func _on_btimer_timeout():
-	var rng = randf_range(1, 20)
-	if rng <= bdifficulty:
+func _get_oleg_room_name_from_flags() -> String:
+	if eatery:
+		return "Eatery"
+	if child:
+		return "Kids"
+	if kitchen:
+		return "Kitchen"
+	if salvag:
+		return "Storage"
+	if corrid or way:
+		return "Corr"
+	return ""
+
+func _get_room_state(room_name: String) -> int:
+	if cams == null:
+		return STATE_EMPTY
+	if not cams.current_camera_state.has(room_name):
+		return STATE_EMPTY
+	return int(cams.current_camera_state[room_name])
+
+func _sync_camera_move(from_room: String, to_room: String) -> void:
+	# Убираем Oleg из предыдущей камеры с учетом Felix (Every -> Felix).
+	if from_room != "":
+		var from_state := _get_room_state(from_room)
+		if from_state == STATE_OLEG:
+			cams.set_camera_state(from_room, STATE_EMPTY)
+		elif from_state == STATE_EVERY:
+			cams.set_camera_state(from_room, STATE_FELIX)
+
+	# Если целевой камеры нет (например, офис), на этом завершаем.
+	if to_room == "":
+		return
+
+	# Ставим Oleg в целевую камеру с учетом Felix (Felix -> Every).
+	var to_state := _get_room_state(to_room)
+	if to_state == STATE_EMPTY:
+		cams.set_camera_state(to_room, STATE_OLEG)
+	elif to_state == STATE_FELIX:
+		cams.set_camera_state(to_room, STATE_EVERY)
+
+func _ensure_cams() -> bool:
+	if cams != null:
+		return true
+	cams = get_node_or_null("../../Cam_Sys/Cam_Buttons") as Cameras
+	return cams != null
+
+func _ready() -> void:
+	if oleg_time == null:
+		push_error("OlegTime timer was not found under OlegTheCat.")
+		return
+	if not oleg_time.timeout.is_connected(_on_oleg_time_timeout):
+		oleg_time.timeout.connect(_on_oleg_time_timeout)
+	if oleg_time.wait_time <= 0.0:
+		oleg_time.wait_time = 3.0
+	oleg_time.autostart = true
+	if oleg_time.is_stopped():
+		oleg_time.start()
+
+func _on_oleg_time_timeout() -> void:
+	if randf_range(1, 20) <= bdifficulty:
 		b()
 
-# Сброс до начальных позиций?
-#func bdisable():
-#	$bap.stop()
-#	salvag = false
-#	eatery = false
-#	office = false
-#	kitchen = false
-#	corrid = false
-#	canjumpscare = false
-#	eatery = true
-#	$bap.play("RESET")
+# Совместимость со старыми подключениями сигнала.
+func _on_btimer_timeout() -> void:
+	_on_oleg_time_timeout()
