@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://e5ohsimiuqvw"]
+[gd_scene load_steps=24 format=3 uid="uid://e5ohsimiuqvw"]
 
 [ext_resource type="Script" uid="uid://cagn47vbj4bnw" path="res://code/camera_3d.gd" id="2_72e8q"]
 [ext_resource type="PackedScene" uid="uid://6wx18ppm1x8x" path="res://models/office/Roons.glb" id="2_d2op2"]
@@ -19,6 +19,7 @@
 [ext_resource type="Texture2D" uid="uid://bvarct5soqx4x" path="res://images/noise1.png" id="16_ikqpi"]
 [ext_resource type="Script" uid="uid://cb65yangpb4ws" path="res://code/ai_manager.gd" id="16_vnsdt"]
 [ext_resource type="Script" uid="uid://cob6ac7i0o20w" path="res://code/oleg_ai.gd" id="18_5luka"]
+[ext_resource type="PackedScene" uid="uid://cbpa2ejj0cdsb" path="res://models/Oleg/Test3dOleg.glb" id="20_yu8cv"]
 
 [sub_resource type="Environment" id="Environment_vnsdt"]
 ambient_light_source = 2
@@ -270,6 +271,12 @@ script = ExtResource("16_vnsdt")
 [node name="OlegTheCat" type="Node" parent="Enemies"]
 script = ExtResource("18_5luka")
 
+[node name="Test3dOleg" parent="Enemies/OlegTheCat" instance=ExtResource("20_yu8cv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -26.571663, 0, 4.36191)
+
+[node name="Skeleton3D" parent="Enemies/OlegTheCat/Test3dOleg/Арматура" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5937996, 0, -2.200717)
+
 [node name="OlegTime" type="Timer" parent="Enemies/OlegTheCat"]
 
 [node name="FelixTheWolf" type="Node" parent="Enemies"]
@@ -288,3 +295,5 @@ script = ExtResource("15_k26l4")
 [node name="CAT" type="Node" parent="Enemies"]
 
 [node name="TIME" type="Timer" parent="Enemies/CAT"]
+
+[editable path="Enemies/OlegTheCat/Test3dOleg"]
