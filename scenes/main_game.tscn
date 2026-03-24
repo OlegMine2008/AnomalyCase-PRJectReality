@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3 uid="uid://e5ohsimiuqvw"]
+[gd_scene load_steps=27 format=3 uid="uid://e5ohsimiuqvw"]
 
 [ext_resource type="Script" uid="uid://cagn47vbj4bnw" path="res://code/camera_3d.gd" id="2_72e8q"]
 [ext_resource type="PackedScene" uid="uid://6wx18ppm1x8x" path="res://models/office/Roons.glb" id="2_d2op2"]
@@ -20,6 +20,7 @@
 [ext_resource type="Script" uid="uid://cb65yangpb4ws" path="res://code/ai_manager.gd" id="16_vnsdt"]
 [ext_resource type="Script" uid="uid://cob6ac7i0o20w" path="res://code/oleg_ai.gd" id="18_5luka"]
 [ext_resource type="PackedScene" uid="uid://cbpa2ejj0cdsb" path="res://models/Oleg/Test3dOleg.glb" id="20_yu8cv"]
+[ext_resource type="PackedScene" uid="uid://cyvx4flo5alx5" path="res://models/Felix/Test3dFelix.glb" id="21_ibnub"]
 
 [sub_resource type="Environment" id="Environment_vnsdt"]
 ambient_light_source = 2
@@ -38,6 +39,10 @@ animations = [{
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_2l77h"]
 load_path = "res://.godot/imported/eatery_of.png-c67158c051dc0b046231e7dcf580dab2.ctex"
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_ibnub"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_5wboo"]
 
 [node name="Office" type="Node3D"]
 
@@ -277,10 +282,31 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -26.571663, 0, 4.36191)
 [node name="Skeleton3D" parent="Enemies/OlegTheCat/Test3dOleg/Арматура" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5937996, 0, -2.200717)
 
+[node name="BoneAttachment3D" type="BoneAttachment3D" parent="Enemies/OlegTheCat/Test3dOleg/Арматура/Skeleton3D" index="18"]
+transform = Transform3D(1, 0, 2.3841858e-07, 0, 1, 0, -2.3841858e-07, 0, 1, 0, 1.8064733, 0.10472417)
+bone_name = "Head_2"
+bone_idx = 7
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Enemies/OlegTheCat/Test3dOleg/Арматура/Skeleton3D/BoneAttachment3D"]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0.25778174, 0.27982688)
+shape = SubResource("SphereShape3D_ibnub")
+
 [node name="OlegTime" type="Timer" parent="Enemies/OlegTheCat"]
 
 [node name="FelixTheWolf" type="Node" parent="Enemies"]
 script = ExtResource("15_k26l4")
+
+[node name="Test3dFelix" parent="Enemies/FelixTheWolf" instance=ExtResource("21_ibnub")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -32.476875, 0, -6.6823225)
+
+[node name="BoneAttachment3D" type="BoneAttachment3D" parent="Enemies/FelixTheWolf/Test3dFelix/Felix/Skeleton3D" index="17"]
+transform = Transform3D(0.99999946, 0.0010464279, -9.065568e-09, -0.001046428, 0.9999994, 9.486469e-12, 9.065573e-09, 0, 1, 0.030273438, 2.1643472, -0.17447662)
+bone_name = "head"
+bone_idx = 1
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Enemies/FelixTheWolf/Test3dFelix/Felix/Skeleton3D/BoneAttachment3D"]
+transform = Transform3D(1.5000002, 3.4924597e-10, -1.7763568e-15, 0, 1.5000002, 0, -1.7763568e-15, -6.7935186e-19, 1.5, -0.00012207031, 0.11668348, 0.18405342)
+shape = SubResource("SphereShape3D_5wboo")
 
 [node name="FelixTime" type="Timer" parent="Enemies/FelixTheWolf"]
 
@@ -297,3 +323,4 @@ script = ExtResource("15_k26l4")
 [node name="TIME" type="Timer" parent="Enemies/CAT"]
 
 [editable path="Enemies/OlegTheCat/Test3dOleg"]
+[editable path="Enemies/FelixTheWolf/Test3dFelix"]
