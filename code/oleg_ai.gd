@@ -24,6 +24,17 @@ var officeleft = false
 var officeright = false
 var canjumpscare = false
 
+# Для лабиринтного алгоритма(комнаты и куда они ведут)
+var rooms = {
+  "Eatery": ["Kitchen", "Storage", "Kids"],
+  "Kitchen": ["Eatery", "Corr"],
+  "Storage": ["Eatery", "Way"],
+  "Corr": ["Kitchen", "Office"],
+  "Way": ["Storage", "Office"],
+  "Office": ["Corr", "Way"]
+}
+
+
 # Основная логика перемещения (без подготовки под лабиринт)
 func b():
 	if not _ensure_cams():
