@@ -31,7 +31,11 @@ var rooms = {
 
 # Основная логика перемещения
 func b():
-	pass
+	var next = _get_next_room(current_r, previous_r)
+	_sync_camera_move(current_r, next)
+
+	previous_r = current_r
+	current_r = next
 
 # Получение комнаты
 func _get_next_room(current_room: String, previous_room: String) -> String:
@@ -159,6 +163,9 @@ func _ready() -> void:
 	oleg_time.autostart = true
 	if oleg_time.is_stopped():
 		oleg_time.start()
+	
+	current_r = 'Eatery'
+	previous_r = ''
 
 func _on_oleg_time_timeout() -> void:
 	if randf_range(1, 20) <= bdifficulty:
