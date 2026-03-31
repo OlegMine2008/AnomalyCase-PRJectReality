@@ -30,96 +30,17 @@ var rooms = {
 
 
 # # Основная логика перемещения
-# func b():
-# 	if not _ensure_cams():
-# 		return
+func b():
+	pass
 
-# 	var from_room: String = _get_oleg_room_name_from_flags()
+func _get_next_room(current_room, previous_room):
+	pass
 
-# 	if eatery_calm:
-# 		_sync_camera_move(from_room, "Eatery")
-# 		# После первого шага выходим из calm-режима.
-# 		eatery_calm = false
-# 		eatery = true
-# 	elif eatery:
-# 		if randf_range(1, 4) >= 2:
-# 			_apply_room_transition("eatery_to_kitchen")
-# 			_sync_camera_move(from_room, "Kitchen")
-# 		else:
-# 			_apply_room_transition("eatery_to_storage")
-# 			_sync_camera_move(from_room, "Storage")
-# 	elif child:
-# 		_apply_room_transition("child_to_eatery")
-# 		_sync_camera_move(from_room, "Eatery")
-# 	elif kitchen:
-# 		if randf_range(1, 4) >= 2:
-# 			_apply_room_transition("kitchen_to_corrid")
-# 			_sync_camera_move(from_room, "Corr")
-# 	elif salvag:
-# 		if randf_range(1, 4) >= 2:
-# 			_apply_room_transition("storage_to_way")
-# 			_sync_camera_move(from_room, "Way")
-# 	elif corrid or way:
-# 		if randf_range(1, 4) >= 2:
-# 			_apply_room_transition("corrid_to_office")
-# 			# В офисе отдельной камеры нет, поэтому Oleg уходит с текущей камеры.
-# 			_sync_camera_move(from_room, "")
-# 	elif office:
-# 		_apply_room_transition("office_to_eatery")
-# 		_sync_camera_move("", "Eatery")
+func _filter_neighbors(neighbors, previous_room):
+	pass
 
-
-# # Обновляет только флаги позиций (частичный сброс сохранен).
-# func _apply_room_transition(transition: String) -> void:
-# 	if transition == "eatery_to_kitchen":
-# 		eatery = false
-# 		kitchen = true
-# 	elif transition == "eatery_to_storage":
-# 		eatery = false
-# 		salvag = true
-# 	elif transition == "eatery_to_child":
-# 		eatery = false
-# 		child = true
-# 	elif transition == "child_to_eatery":
-# 		child = false
-# 		eatery = true
-# 	elif transition == "kitchen_to_eatery":
-# 		kitchen = false
-# 		eatery = true
-# 	elif transition == "corrid_to_office":
-# 		corrid = false
-# 		office = true
-# 	elif transition == "storage_to_kitchen":
-# 		salvag = false
-# 		kitchen = true
-# 	elif transition == "office_to_eatery":
-# 		canjumpscare = false
-# 		office = false
-# 		eatery = true
-# 	elif transition == "office_ready_jumpscare":
-# 		canjumpscare = true
-# 		office = false
-# 	elif transition == "kitchen_to_corrid":
-# 		kitchen = false
-# 		corrid = true
-# 	elif transition == "storage_to_way":
-# 		salvag = false
-# 		way = true
-
-# func _get_oleg_room_name_from_flags() -> String:
-# 	if eatery:
-# 		return "Eatery"
-# 	if child:
-# 		return "Kids"
-# 	if kitchen:
-# 		return "Kitchen"
-# 	if salvag:
-# 		return "Storage"
-# 	if corrid:
-# 		return "Corr"
-# 	if way:
-# 		return "Way"
-# 	return ""
+func _choose_next_room(neighbors):
+	pass
 
 func _get_room_state(room_name: String) -> int:
  	if cams == null:
