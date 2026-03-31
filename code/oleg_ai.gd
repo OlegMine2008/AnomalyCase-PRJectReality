@@ -74,6 +74,10 @@ func b():
 		_apply_room_transition("office_to_eatery")
 		_sync_camera_move("", "Eatery")
 
+
+# func b():
+#	 pass
+
 # Обновляет только флаги позиций (частичный сброс сохранен).
 func _apply_room_transition(transition: String) -> void:
 	if transition == "eatery_to_kitchen":
