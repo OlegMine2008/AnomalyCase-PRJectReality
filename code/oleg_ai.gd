@@ -1,4 +1,4 @@
-extends Node
+﻿extends Node
 
 @export var cams: Cameras
 @onready var oleg_time: Timer = $OlegTime
@@ -11,8 +11,8 @@ const STATE_EVERY := 3
 # Уровень ИИ
 var bdifficulty = 0
 # Позиции Oleg по комнатам
-var current_room = 'Eatery'
-var previous_room = ''
+var current_r = 'Eatery'
+var previous_r = ''
 # Эти флаги пока не используются
 var officeleft = false
 var officeright = false
@@ -29,18 +29,91 @@ var rooms = {
 }
 
 
-# # Основная логика перемещения
+# Основная логика перемещения
 func b():
 	pass
 
-func _get_next_room(current_room, previous_room):
-	pass
+# Получение комнаты
+func _get_next_room(current_room: String, previous_room: String) -> String:
+	# Общая точка входа: берём соседей, оставляем лучшие варианты и
+	# затем делаем финальный выбор между равноценными комнатами.
+	if not rooms.has(current_room):
+		return ""
 
-func _filter_neighbors(neighbors, previous_room):
-	pass
+	var neighbors: Array = rooms[current_room]
+	var filtered_neighbors: Array[String] = _filter_neighbors(neighbors, previous_room)
+	return _choose_next_room(filtered_neighbors)
 
-func _choose_next_room(neighbors):
-	pass
+# Фильтрация ненужных комнат-соседей(поиск короткого пути)
+func _filter_neighbors(neighbors: Array, previous_room: String) -> Array[String]:
+	var source_neighbors: Array[String] = []
+	for neighbor in neighbors:
+		if neighbor is String:
+			source_neighbors.append(neighbor)
+
+	if source_neighbors.is_empty():
+		return []
+
+	# Сначала запрещаем мгновенный возврат назад, но не ценой тупика:
+	# если после этого не остаётся вариантов, разрешаем идти обратно.
+	var candidate_neighbors: Array[String] = []
+	for neighbor in source_neighbors:
+		if neighbor != previous_room:
+			candidate_neighbors.append(neighbor)
+	if candidate_neighbors.is_empty():
+		candidate_neighbors = source_neighbors.duplicate()
+
+	# Оставляем только комнаты с минимальной дистанцией до Office.
+	var best_distance := INF
+	var best_neighbors: Array[String] = []
+	for neighbor in candidate_neighbors:
+		var distance := _get_distance_to_office(neighbor)
+		if distance < best_distance:
+			best_distance = distance
+			best_neighbors = [neighbor]
+		elif is_equal_approx(distance, best_distance):
+			best_neighbors.append(neighbor)
+
+	return best_neighbors
+
+# Выбор наивыгоднейшей комнаты
+func _choose_next_room(neighbors: Array[String]) -> String:
+	# На этом этапе остаются только лучшие кандидаты.
+	# Если их несколько, выбираем случайно, пока без весов.
+	if neighbors.is_empty():
+		return ""
+	if neighbors.size() == 1:
+		return neighbors[0]
+	return neighbors[randi_range(0, neighbors.size() - 1)]
+
+func _get_distance_to_office(start_room: String) -> float:
+	if start_room == "Office":
+		return 0.0
+	if not rooms.has(start_room):
+		return INF
+
+	var visited := {start_room: true}
+	var queue: Array[Dictionary] = [{"room": start_room, "distance": 0}]
+
+	while not queue.is_empty():
+		var current_step: Dictionary = queue.pop_front()
+		var room_name: String = current_step["room"]
+		var distance: int = current_step["distance"]
+
+		if room_name == "Office":
+			return float(distance)
+		if not rooms.has(room_name):
+			continue
+
+		for neighbor in rooms[room_name]:
+			if not (neighbor is String):
+				continue
+			if visited.has(neighbor):
+				continue
+			visited[neighbor] = true
+			queue.append({"room": neighbor, "distance": distance + 1})
+
+	return INF
 
 func _get_room_state(room_name: String) -> int:
 	if cams == null:
