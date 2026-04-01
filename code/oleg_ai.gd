@@ -11,8 +11,10 @@ const STATE_EVERY := 3
 # Уровень ИИ
 var bdifficulty = 0
 # Позиции Oleg по комнатам
-var current_r = 'Eatery'
-var previous_r = ''
+var real_cur = 'Eatery'
+var real_prev = ''
+var vision_cur = real_cur
+var vision_prev = real_prev
 # Эти флаги пока не используются
 var officeleft = false
 var officeright = false
@@ -31,11 +33,13 @@ var rooms = {
 
 # Основная логика перемещения
 func b():
-	var next = _get_next_room(current_r, previous_r)
-	_sync_camera_move(current_r, next)
+	var next = _get_next_room(real_cur, real_prev)
+	vision_cur = real_cur
+	vision_prev = real_prev
+	_sync_camera_move(vision_cur, next)
 
-	previous_r = current_r
-	current_r = next
+	real_prev = real_cur
+	real_cur = next
 
 # Получение комнаты
 func _get_next_room(current_room: String, previous_room: String) -> String:
@@ -168,7 +172,7 @@ func _ready() -> void:
 	previous_r = ''
 
 func _on_oleg_time_timeout() -> void:
-	if randf_range(1, 20) <= bdifficulty:
+	if randf_range(1, 21) < bdifficulty:
 		b()
 
 # Совместимость со старыми подключениями сигнала.
