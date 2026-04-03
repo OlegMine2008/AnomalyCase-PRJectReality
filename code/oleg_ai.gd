@@ -15,6 +15,9 @@ var real_cur = 'Eatery'
 var real_prev = ''
 var vision_cur = real_cur
 var vision_prev = real_prev
+# Флаги "истинной" реальности
+var is_desynced = false
+var methode = ['two_way_behind', 'two_way_forward', 'stay_real', 'go_real']
 # Эти флаги пока не используются
 var officeleft = false
 var officeright = false
@@ -40,6 +43,7 @@ func b():
 
 	real_prev = real_cur
 	real_cur = next
+	print('В реальности Олег находится в ', real_cur)
 
 # Получение комнаты
 func _get_next_room(current_room: String, previous_room: String) -> String:
