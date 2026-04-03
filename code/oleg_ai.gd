@@ -1,4 +1,4 @@
-extends Node
+﻿extends Node
 
 @export var cams: Cameras
 @onready var oleg_time: Timer = $OlegTime
@@ -36,13 +36,16 @@ var rooms = {
 
 # Основная логика перемещения
 func b():
-	var next = _get_next_room(real_cur, real_prev)
-	vision_cur = real_cur
-	vision_prev = real_prev
-	_sync_camera_move(vision_cur, next)
-
-	real_prev = real_cur
-	real_cur = next
+	if not is_desynced:
+		var next = _get_next_room(real_cur, real_prev)
+		vision_cur = real_cur
+		vision_prev = real_prev
+		_sync_camera_move(vision_cur, next)
+		
+		real_prev = real_cur
+		real_cur = next
+	else:
+		pass
 	print('В реальности Олег находится в ', real_cur)
 
 # Получение комнаты
@@ -178,6 +181,8 @@ func _ready() -> void:
 func _on_oleg_time_timeout() -> void:
 	if randf_range(1, 21) < bdifficulty:
 		b()
+	if randf_range(5, 101) < (bdifficulty * 5):
+		pass
 
 # Совместимость со старыми подключениями сигнала.
 func _on_btimer_timeout() -> void:
