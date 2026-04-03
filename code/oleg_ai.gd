@@ -1,4 +1,4 @@
-﻿extends Node
+extends Node
 
 @export var cams: Cameras
 @onready var oleg_time: Timer = $OlegTime
@@ -172,8 +172,8 @@ func _ready() -> void:
 	if oleg_time.is_stopped():
 		oleg_time.start()
 	
-	current_r = 'Eatery'
-	previous_r = ''
+	real_cur = 'Eatery'
+	real_prev = ''
 
 func _on_oleg_time_timeout() -> void:
 	if randf_range(1, 21) < bdifficulty:
