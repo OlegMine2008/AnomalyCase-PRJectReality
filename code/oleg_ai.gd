@@ -191,6 +191,7 @@ func _on_oleg_time_timeout() -> void:
 	if randf_range(5, 101) < (bdifficulty * 5):
 		# Вероятностно включаем/выключаем рассинхрон визуального и реального положения.
 		is_desynced = not is_desynced
+		print('Рассинхронизация противника - ', is_desynced)
 
 # Совместимость со старыми подключениями сигнала.
 func _on_btimer_timeout() -> void:
