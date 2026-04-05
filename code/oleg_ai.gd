@@ -188,9 +188,13 @@ func _ready() -> void:
 func _on_oleg_time_timeout() -> void:
 	if randf_range(1, 21) < bdifficulty:
 		b()
-	if randf_range(5, 101) < (bdifficulty * 5):
-		# Вероятностно включаем/выключаем рассинхрон визуального и реального положения.
-		is_desynced = not is_desynced
+	# В Office рассинхрон всегда выключен и не меняется.
+	if real_cur == "Office":
+		is_desynced = false
+		return
+	# Вне Office рассинхрон включается по шансу от интеллекта только один раз (false -> true).
+	if not is_desynced and randf_range(bdifficulty, 101) > (bdifficulty * 5):
+		is_desynced = true
 		print('Рассинхронизация противника - ', is_desynced)
 
 # Совместимость со старыми подключениями сигнала.
