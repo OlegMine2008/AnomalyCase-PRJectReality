@@ -17,7 +17,7 @@ var vision_cur = real_cur
 var vision_prev = real_prev
 # Флаги "истинной" реальности
 var is_desynced = false
-var methode = ['two_way_behind', 'two_way_forward', 'stay_real', 'go_real']
+var methode = "go_real"
 # Эти флаги пока не используются
 var officeleft = false
 var officeright = false
@@ -34,19 +34,26 @@ var rooms = {
 }
 
 
-# Основная логика перемещения
+# Основная логика перемещения:
+# 1) считаем следующую комнату, 2) обрабатываем визуальный шаг,
+# 3) двигаем реальное положение, 4) логируем итог.
 func b():
-	if not is_desynced:
-		var next = _get_next_room(real_cur, real_prev)
-		vision_cur = real_cur
-		vision_prev = real_prev
-		_sync_camera_move(vision_cur, next)
-		
-		real_prev = real_cur
-		real_cur = next
-	else:
-		pass
+	var next = _get_next_room(real_cur, real_prev)
+	_apply_vision_move(next)
+
+	real_prev = real_cur
+	real_cur = next
 	print('В реальности Олег находится в ', real_cur)
+
+# Обновляет "видимое" положение:
+# при desync + go_real визуальная позиция заморожена, иначе двигается синхронно.
+func _apply_vision_move(next_room: String) -> void:
+	if is_desynced and methode == "go_real":
+		return
+
+	vision_prev = vision_cur
+	vision_cur = next_room
+	_sync_camera_move(vision_prev, vision_cur)
 
 # Получение комнаты
 func _get_next_room(current_room: String, previous_room: String) -> String:
@@ -182,7 +189,8 @@ func _on_oleg_time_timeout() -> void:
 	if randf_range(1, 21) < bdifficulty:
 		b()
 	if randf_range(5, 101) < (bdifficulty * 5):
-		pass
+		# Вероятностно включаем/выключаем рассинхрон визуального и реального положения.
+		is_desynced = not is_desynced
 
 # Совместимость со старыми подключениями сигнала.
 func _on_btimer_timeout() -> void:
