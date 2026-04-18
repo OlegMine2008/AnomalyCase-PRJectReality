@@ -6,11 +6,14 @@
 [ext_resource type="Texture2D" uid="uid://ci3w5ykboo8dj" path="res://images/cam_menu.png" id="4_0rdsr"]
 [ext_resource type="Script" uid="uid://be1knwy4bvkbb" path="res://code/cam_manager.gd" id="4_ipu61"]
 [ext_resource type="Script" uid="uid://cjbg7u2s0u46a" path="res://code/cameras.gd" id="5_8m8gb"]
+[ext_resource type="Script" uid="uid://1mxlrsw7aejt" path="res://code/modes_buts.gd" id="6_dcudo"]
 [ext_resource type="Texture2D" uid="uid://c667jx8n4bem6" path="res://images/buttons/standart_unchoosed.png" id="7_6de02"]
 [ext_resource type="Texture2D" uid="uid://bc3u6ybbq6hsm" path="res://images/map_cams.png" id="8_70vka"]
 [ext_resource type="Texture2D" uid="uid://t35rrohbqnqx" path="res://images/buttons/True_unchoosed.png" id="8_cybgu"]
+[ext_resource type="Texture2D" uid="uid://dnfcagb3qcl8d" path="res://images/buttons/standart_choosed.png" id="8_x3ega"]
 [ext_resource type="Texture2D" uid="uid://dd0ddpdektxsl" path="res://images/cameras/background/back_o.png" id="9_nqdth"]
 [ext_resource type="Texture2D" uid="uid://d168rbyqpqcjh" path="res://images/white1.png" id="9_wdxbp"]
+[ext_resource type="Texture2D" uid="uid://duu7eqgfyahj5" path="res://images/buttons/True_choosed.png" id="10_dcudo"]
 [ext_resource type="Texture2D" uid="uid://c70x1fnbjswh6" path="res://images/cameras/behind/behind_o.png" id="10_o6v7o"]
 [ext_resource type="Texture2D" uid="uid://c2862gc8cmr7s" path="res://images/white2.png" id="10_on6n6"]
 [ext_resource type="Texture2D" uid="uid://c1y4fpaotbr5x" path="res://images/buttons/unchoosed.png" id="11_6de02"]
@@ -100,6 +103,7 @@ texture = ExtResource("4_0rdsr")
 [node name="Camera2D" type="Camera2D" parent="Cam_Sys" unique_id=1001659048]
 
 [node name="Cam_HUD" type="Node2D" parent="Cam_Sys" unique_id=997149672]
+script = ExtResource("6_dcudo")
 
 [node name="Sprite2D" type="Sprite2D" parent="Cam_Sys/Cam_HUD" unique_id=8675953]
 scale = Vector2(0.6, 0.6)
@@ -113,9 +117,10 @@ offset_right = -243.99994
 offset_bottom = -282.0
 scale = Vector2(0.55, 0.55)
 toggle_mode = true
+button_pressed = true
 button_group = SubResource("ButtonGroup_cybgu")
 texture_normal = ExtResource("7_6de02")
-texture_pressed = ExtResource("7_6de02")
+texture_pressed = ExtResource("8_x3ega")
 
 [node name="true_mode" type="TextureButton" parent="Cam_Sys/Cam_HUD" unique_id=2116383641]
 offset_left = -373.0
@@ -126,6 +131,7 @@ scale = Vector2(0.55, 0.55)
 toggle_mode = true
 button_group = SubResource("ButtonGroup_cybgu")
 texture_normal = ExtResource("8_cybgu")
+texture_pressed = ExtResource("10_dcudo")
 
 [node name="Cam_Buttons" type="Node2D" parent="Cam_Sys" unique_id=1855961351 node_paths=PackedStringArray("offic")]
 script = ExtResource("5_8m8gb")

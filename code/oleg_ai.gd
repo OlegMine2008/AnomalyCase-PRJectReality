@@ -15,6 +15,8 @@ var real_cur = 'Eatery'
 var real_prev = ''
 var vision_cur = real_cur
 var vision_prev = real_prev
+# false = показываем vision-позицию, true = показываем real-позицию.
+var true_vision := false
 # Флаги "истинной" реальности
 var is_desynced = false
 var methode = "go_real"
@@ -43,6 +45,8 @@ func b():
 
 	real_prev = real_cur
 	real_cur = next
+	if true_vision:
+		_sync_camera_move(real_prev, real_cur)
 	print('В реальности Олег находится в ', real_cur)
 
 # Обновляет "видимое" положение:
@@ -53,7 +57,8 @@ func _apply_vision_move(next_room: String) -> void:
 
 	vision_prev = vision_cur
 	vision_cur = next_room
-	_sync_camera_move(vision_prev, vision_cur)
+	if not true_vision:
+		_sync_camera_move(vision_prev, vision_cur)
 
 # Получение комнаты
 func _get_next_room(current_room: String, previous_room: String) -> String:
@@ -145,6 +150,9 @@ func _get_room_state(room_name: String) -> int:
 	return int(cams.current_camera_state[room_name])
 
 func _sync_camera_move(from_room: String, to_room: String) -> void:
+	if cams == null and not _ensure_cams():
+		return
+
 	# Убираем Oleg из предыдущей камеры с учетом Felix (Every -> Felix).
 	if from_room != "":
 		var from_state := _get_room_state(from_room)
@@ -164,6 +172,23 @@ func _sync_camera_move(from_room: String, to_room: String) -> void:
 	elif to_state == STATE_FELIX:
 		cams.set_camera_state(to_room, STATE_EVERY)
 
+# Публичный переключатель режима отображения Oleg на камерах.
+func set_true_vision(enabled: bool) -> void:
+	if true_vision == enabled:
+		return
+
+	if not _ensure_cams():
+		true_vision = enabled
+		return
+
+	# При смене режима переносим маркер между видимой и реальной позицией.
+	if enabled:
+		_sync_camera_move(vision_cur, real_cur)
+	else:
+		_sync_camera_move(real_cur, vision_cur)
+
+	true_vision = enabled
+
 func _ensure_cams() -> bool:
 	if cams != null:
 		return true
@@ -173,8 +198,6 @@ func _ensure_cams() -> bool:
 func _ready() -> void:
 	if oleg_time == null:
 		push_error("OlegTime timer was not found under OlegTheCat.")
-		return
-	elif bdifficulty == 0:
 		return
 	if not oleg_time.timeout.is_connected(_on_oleg_time_timeout):
 		oleg_time.timeout.connect(_on_oleg_time_timeout)

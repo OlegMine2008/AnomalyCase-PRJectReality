@@ -12,6 +12,8 @@ const BUTTON_TO_FEED: Dictionary[String, String] = {
 	"salvag_but": "Storage",
 	"way_but": "Way",
 	"behind_but": "Behind",
+	"secret_but": "Back",
+	"lab_but": "Back",
 }
 
 # Хранит пути к текстурам для каждого состояния камеры.
@@ -49,6 +51,10 @@ const CAMERAS_IMAGES: Dictionary = {
 	"Behind": {
 		"Empty": "res://images/cameras/behind/behind.png",
 		"Oleg": "res://images/cameras/behind/behind_o.png",
+	},
+	"Back": {
+		"Empty": "res://images/cameras/background/back.png",
+		"Oleg": "res://images/cameras/background/back_o.png",
 	},
 }
 
@@ -205,6 +211,24 @@ func _show_only_feed(feed_name: String) -> void:
 		f.visible = false
 
 	feeds_by_name[feed_name].visible = true
+
+# Публичный выбор камеры по имени кнопки (без доступа к приватной логике снаружи).
+func select_camera_by_button(button_name: String) -> void:
+	if not BUTTON_TO_FEED.has(button_name):
+		return
+	if not buttons_by_name.has(button_name):
+		return
+
+	var btn: TextureButton = buttons_by_name[button_name]
+	if btn.disabled or not btn.visible:
+		return
+
+	btn.button_pressed = true
+	_on_cam_button_toggled(true, button_name)
+
+# Возвращает текущую видимую камеру для внешней логики (например, режимов HUD).
+func get_current_feed_name() -> String:
+	return _get_visible_feed_name()
 
 # Меняет состояние конкретной камеры и подставляет ей нужную текстуру.
 func set_camera_state(cam_name: String, state_index: int) -> void:

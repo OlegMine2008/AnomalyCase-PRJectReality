@@ -2,7 +2,7 @@ extends Node
 
 #@export_range(0, 20, 1) var oleg_level: int = 0
 #@export_range(0, 20, 1) var felix_level: int = 0
-var oleg_level = 0
+var oleg_level = 5
 var felix_level = 0
 
 func _ready() -> void:
