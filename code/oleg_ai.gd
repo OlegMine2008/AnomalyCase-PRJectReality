@@ -1,4 +1,4 @@
-﻿extends Node
+extends Node
 
 @export var cams: Cameras
 @onready var oleg_time: Timer = $OlegTime
