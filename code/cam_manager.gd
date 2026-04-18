@@ -3,6 +3,7 @@ extends Node2D
 @export var cams: Cameras
 @export var offic: Office
 @onready var text: Sprite2D = $CamMenu
+@onready var static_layer = $"CanvasLayer/StaticPC"
 
 
 # Called when the node enters the scene tree for the first time.
@@ -22,3 +23,8 @@ func _process(_delta: float):
 		return
 	var show_cam_ui := offic.cams_on and offic.cam_transition_done
 	text.visible = show_cam_ui
+	static_layer.visible = show_cam_ui
+	if show_cam_ui:
+		$CanvasLayer/StaticPC.play()
+	else:
+		$CanvasLayer/StaticPC.stop()

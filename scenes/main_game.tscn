@@ -10,15 +10,17 @@
 [ext_resource type="Texture2D" uid="uid://bc3u6ybbq6hsm" path="res://images/map_cams.png" id="8_70vka"]
 [ext_resource type="Texture2D" uid="uid://t35rrohbqnqx" path="res://images/buttons/True_unchoosed.png" id="8_cybgu"]
 [ext_resource type="Texture2D" uid="uid://dd0ddpdektxsl" path="res://images/cameras/background/back_o.png" id="9_nqdth"]
+[ext_resource type="Texture2D" uid="uid://d168rbyqpqcjh" path="res://images/white1.png" id="9_wdxbp"]
 [ext_resource type="Texture2D" uid="uid://c70x1fnbjswh6" path="res://images/cameras/behind/behind_o.png" id="10_o6v7o"]
+[ext_resource type="Texture2D" uid="uid://c2862gc8cmr7s" path="res://images/white2.png" id="10_on6n6"]
 [ext_resource type="Texture2D" uid="uid://c1y4fpaotbr5x" path="res://images/buttons/unchoosed.png" id="11_6de02"]
 [ext_resource type="Texture2D" uid="uid://bjedqx7xjlbf7" path="res://images/cameras/corridor/corr_f.png" id="11_wjob3"]
+[ext_resource type="Texture2D" uid="uid://u7xic5uxxwc8" path="res://images/white3.png" id="11_x3ega"]
 [ext_resource type="Texture2D" uid="uid://82wwf4aryaen" path="res://images/buttons/choosed.png" id="12_cybgu"]
 [ext_resource type="Texture2D" uid="uid://b31htdxs2sug3" path="res://images/cameras/kids/kids_o.png" id="12_wjob3"]
 [ext_resource type="Texture2D" uid="uid://byfmpoiyj3ynb" path="res://images/cameras/kitchen/kitchen_f.png" id="13_sp04v"]
 [ext_resource type="Texture2D" uid="uid://cvpbfpkyr6iec" path="res://images/cameras/storage/storag.png" id="14_ihbck"]
 [ext_resource type="Script" uid="uid://cv55jqnsypf4" path="res://code/felix_ai.gd" id="15_k26l4"]
-[ext_resource type="Texture2D" uid="uid://bvarct5soqx4x" path="res://images/noise1.png" id="16_ikqpi"]
 [ext_resource type="Script" uid="uid://cb65yangpb4ws" path="res://code/ai_manager.gd" id="16_vnsdt"]
 [ext_resource type="Script" uid="uid://cob6ac7i0o20w" path="res://code/oleg_ai.gd" id="18_5luka"]
 [ext_resource type="PackedScene" uid="uid://cbpa2ejj0cdsb" path="res://models/Oleg/Test3dOleg.glb" id="20_yu8cv"]
@@ -28,22 +30,32 @@
 ambient_light_source = 2
 ambient_light_energy = 0.9
 
-[sub_resource type="SpriteFrames" id="SpriteFrames_vnsdt"]
-animations = [{
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("16_ikqpi")
-}],
-"loop": true,
-"name": &"default",
-"speed": 5.0
-}]
+[sub_resource type="ButtonGroup" id="ButtonGroup_cybgu"]
+resource_name = "mode"
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_6de02"]
 resource_name = "Cams"
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_2l77h"]
 load_path = "res://.godot/imported/eatery_of.png-c67158c051dc0b046231e7dcf580dab2.ctex"
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_wdxbp"]
+resource_name = "default"
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("9_wdxbp")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_on6n6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_x3ega")
+}],
+"loop": true,
+"name": &"default",
+"speed": 15.0
+}]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_ibnub"]
 
@@ -95,27 +107,25 @@ texture = ExtResource("8_70vka")
 
 [node name="seen_mode" type="TextureButton" parent="Cam_Sys/Cam_HUD" unique_id=2000220583]
 anchors_preset = -1
-offset_left = -576.0
-offset_top = -324.0
-offset_right = -253.0
-offset_bottom = -283.0
+offset_left = -566.99994
+offset_top = -323.0
+offset_right = -243.99994
+offset_bottom = -282.0
+scale = Vector2(0.55, 0.55)
 toggle_mode = true
+button_group = SubResource("ButtonGroup_cybgu")
 texture_normal = ExtResource("7_6de02")
 texture_pressed = ExtResource("7_6de02")
 
 [node name="true_mode" type="TextureButton" parent="Cam_Sys/Cam_HUD" unique_id=2116383641]
-visible = false
-offset_left = -382.0
-offset_top = -324.0
-offset_right = -188.0
-offset_bottom = -299.0
+offset_left = -373.0
+offset_top = -323.0
+offset_right = -50.0
+offset_bottom = -282.0
+scale = Vector2(0.55, 0.55)
+toggle_mode = true
+button_group = SubResource("ButtonGroup_cybgu")
 texture_normal = ExtResource("8_cybgu")
-
-[node name="StaticPC" type="AnimatedSprite2D" parent="Cam_Sys/Cam_HUD" unique_id=1049869889]
-visible = false
-position = Vector2(-12, -6.75)
-scale = Vector2(0.735, 0.735)
-sprite_frames = SubResource("SpriteFrames_vnsdt")
 
 [node name="Cam_Buttons" type="Node2D" parent="Cam_Sys" unique_id=1855961351 node_paths=PackedStringArray("offic")]
 script = ExtResource("5_8m8gb")
@@ -297,6 +307,15 @@ visible = false
 position = Vector2(-266, 12)
 scale = Vector2(0.6, 0.6)
 texture = ExtResource("14_ihbck")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="Cam_Sys" unique_id=28927412]
+
+[node name="StaticPC" type="AnimatedSprite2D" parent="Cam_Sys/CanvasLayer" unique_id=1049869889]
+modulate = Color(0.4351923, 0.43519226, 0.43519226, 0.21568628)
+self_modulate = Color(0.4390491, 0.43904912, 0.43904912, 1)
+scale = Vector2(1.5, 1.5)
+sprite_frames = SubResource("SpriteFrames_wdxbp")
+speed_scale = 2.0
 
 [node name="Enemies" type="Node" parent="." unique_id=1958853797]
 script = ExtResource("16_vnsdt")

@@ -174,6 +174,8 @@ func _ready() -> void:
 	if oleg_time == null:
 		push_error("OlegTime timer was not found under OlegTheCat.")
 		return
+	elif bdifficulty == 0:
+		return
 	if not oleg_time.timeout.is_connected(_on_oleg_time_timeout):
 		oleg_time.timeout.connect(_on_oleg_time_timeout)
 	if oleg_time.wait_time <= 0.0:
