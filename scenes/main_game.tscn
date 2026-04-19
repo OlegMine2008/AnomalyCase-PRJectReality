@@ -28,6 +28,8 @@
 [ext_resource type="Script" uid="uid://cob6ac7i0o20w" path="res://code/oleg_ai.gd" id="18_5luka"]
 [ext_resource type="PackedScene" uid="uid://cbpa2ejj0cdsb" path="res://models/Oleg/Test3dOleg.glb" id="20_yu8cv"]
 [ext_resource type="PackedScene" uid="uid://cyvx4flo5alx5" path="res://models/Felix/Test3dFelix.glb" id="21_ibnub"]
+[ext_resource type="AudioStream" uid="uid://bnu2wbp075sgf" path="res://audio/loop_static.wav" id="24_rr87q"]
+[ext_resource type="Script" uid="uid://b5o0nwuq27ffy" path="res://code/static_s.gd" id="25_rr87q"]
 
 [sub_resource type="Environment" id="Environment_vnsdt"]
 ambient_light_source = 2
@@ -322,6 +324,11 @@ self_modulate = Color(0.4390491, 0.43904912, 0.43904912, 1)
 scale = Vector2(1.5, 1.5)
 sprite_frames = SubResource("SpriteFrames_wdxbp")
 speed_scale = 2.0
+
+[node name="static_sound" type="AudioStreamPlayer" parent="Cam_Sys" unique_id=1741300321]
+stream = ExtResource("24_rr87q")
+volume_db = 2.0
+script = ExtResource("25_rr87q")
 
 [node name="Enemies" type="Node" parent="." unique_id=1958853797]
 script = ExtResource("16_vnsdt")

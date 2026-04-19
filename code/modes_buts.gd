@@ -6,6 +6,7 @@ var seen_mode_but: TextureButton
 var true_mode_but: TextureButton
 var secret_but: TextureButton
 var lab_but: TextureButton
+var behind_but: TextureButton
 var cams: Cameras
 var oleg_ai: Node
 
@@ -13,9 +14,11 @@ var oleg_ai: Node
 var _mode_switch_in_progress := false
 
 func _ready() -> void:
+	# Получаем ссылки на кнопки переключения режимов сверху HUD.
 	seen_mode_but = get_node_or_null("seen_mode") as TextureButton
 	true_mode_but = get_node_or_null("true_mode") as TextureButton
 
+	# Получаем ссылки на систему камер и дополнительные кнопки карт.
 	var cam_sys := get_parent()
 	if cam_sys != null:
 		cams = cam_sys.get_node_or_null("Cam_Buttons") as Cameras
@@ -23,7 +26,9 @@ func _ready() -> void:
 		if cam_buttons != null:
 			secret_but = cam_buttons.get_node_or_null("secret_but") as TextureButton
 			lab_but = cam_buttons.get_node_or_null("lab_but") as TextureButton
+			behind_but = cam_buttons.get_node_or_null("behind_but") as TextureButton
 
+	# Ссылка на ИИ Олега, чтобы синхронизировать выбранный режим отображения.
 	oleg_ai = get_node_or_null("../../Enemies/OlegTheCat")
 
 	_connect_mode_buttons()
@@ -34,6 +39,7 @@ func _ready() -> void:
 
 
 func _connect_mode_buttons() -> void:
+	# Подключаем обработчики только один раз.
 	if seen_mode_but != null:
 		var seen_callback := Callable(self, "_on_seen_mode_toggled")
 		if not seen_mode_but.toggled.is_connected(seen_callback):
@@ -58,6 +64,7 @@ func _on_true_mode_toggled(toggled_on: bool) -> void:
 
 
 func _apply_mode(is_true: bool) -> void:
+	# Переключаем внутренний флаг режима (false = seen, true = real/true).
 	true_vision = is_true
 
 	# Скрываем/показываем кнопки секретных камер по режиму.
@@ -71,9 +78,11 @@ func _apply_mode(is_true: bool) -> void:
 		true_mode_but.button_pressed = true_vision
 	_mode_switch_in_progress = false
 
-	# В seen_mode нельзя оставаться на Back, возвращаемся на Eatery.
-	if not true_vision and cams != null and cams.get_current_feed_name() == "Back":
-		cams.select_camera_by_button("eatery_but")
+	# В seen_mode нельзя оставаться на real-only камерах, возвращаемся на Eatery.
+	if not true_vision and cams != null:
+		var current_feed := cams.get_current_feed_name()
+		if current_feed == "Back" or current_feed == "Behind":
+			cams.select_camera_by_button("eatery_but")
 
 	# Передаём выбранный режим в Oleg AI.
 	if oleg_ai != null and oleg_ai.has_method("set_true_vision"):
@@ -81,14 +90,18 @@ func _apply_mode(is_true: bool) -> void:
 
 
 func _set_extra_camera_buttons_visible(visible_state: bool) -> void:
+	# Камеры, доступные только в true-режиме.
 	_set_button_state(secret_but, visible_state)
 	_set_button_state(lab_but, visible_state)
+	_set_button_state(behind_but, visible_state)
 
 
 func _set_button_state(button: TextureButton, visible_state: bool) -> void:
 	if button == null:
 		return
 
+	# При скрытии кнопки обязательно выключаем её "нажатость",
+	# чтобы не оставлять UI в невалидном состоянии.
 	button.visible = visible_state
 	button.disabled = not visible_state
 	if not visible_state:
