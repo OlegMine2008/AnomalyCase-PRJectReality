@@ -16,6 +16,7 @@ func _input(event):
 		if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed and not cam_on:
 			is_on = !is_on
 			self.visible = is_on
+			$ChangeSound.play()
 	
 	if event is InputEventMouseMotion:
 		mouse_pos = event.position
@@ -24,6 +25,8 @@ func _input(event):
 	if event is InputEventKey:
 		if event.pressed and event.keycode == KEY_SPACE:
 			cam_on = !cam_on
+			if cam_on and is_on:
+				$ChangeSound.play()
 			is_on = false
 			self.visible = is_on
 

@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://6wx18ppm1x8x" path="res://models/office/Roons.glb" id="2_d2op2"]
 [ext_resource type="Script" uid="uid://8fm0qtsm0317" path="res://code/flashlight.gd" id="3_d2op2"]
 [ext_resource type="Texture2D" uid="uid://ci3w5ykboo8dj" path="res://images/cam_menu.png" id="4_0rdsr"]
+[ext_resource type="AudioStream" uid="uid://cv82ticq4p5k6" path="res://audio/flashlight_change.wav" id="4_dp0eu"]
 [ext_resource type="Script" uid="uid://be1knwy4bvkbb" path="res://code/cam_manager.gd" id="4_ipu61"]
 [ext_resource type="Script" uid="uid://cjbg7u2s0u46a" path="res://code/cameras.gd" id="5_8m8gb"]
 [ext_resource type="Script" uid="uid://1mxlrsw7aejt" path="res://code/modes_buts.gd" id="6_dcudo"]
@@ -92,6 +93,10 @@ spot_attenuation = -0.6
 spot_angle = 23.3
 spot_angle_attenuation = 0.73204345
 script = ExtResource("3_d2op2")
+
+[node name="ChangeSound" type="AudioStreamPlayer" parent="Flashlight" unique_id=1966943605]
+stream = ExtResource("4_dp0eu")
+volume_db = 1.0
 
 [node name="Cam_Sys" type="Node2D" parent="." unique_id=1235295303 node_paths=PackedStringArray("cams", "offic")]
 script = ExtResource("4_ipu61")
