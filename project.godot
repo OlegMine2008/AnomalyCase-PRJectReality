@@ -19,6 +19,15 @@ run/main_scene="uid://e5ohsimiuqvw"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
 
+[display]
+
+window/size/mode=0
+window/size/resizable=true
+window/size/viewport_width=1152
+window/size/viewport_height=648
+window/stretch/mode="viewport"
+window/stretch/aspect="keep"
+
 [dotnet]
 
 project/assembly_name="ProjectMemory"

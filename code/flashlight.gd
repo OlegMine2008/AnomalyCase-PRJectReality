@@ -19,7 +19,7 @@ func _input(event):
 			$ChangeSound.play()
 	
 	if event is InputEventMouseMotion:
-		mouse_pos = event.position
+		mouse_pos = get_viewport().get_mouse_position()
 		update_light_rotation()
 	
 	if event is InputEventKey:
@@ -31,8 +31,8 @@ func _input(event):
 			self.visible = is_on
 
 func update_light_rotation():	
-	# Получаем размер окна
-	var viewport_size = get_viewport().size
+	# Получаем размер видимой области viewport (с учетом aspect keep)
+	var viewport_size = get_viewport().get_visible_rect().size
 	
 	if viewport_size.x == 0 or viewport_size.y == 0:
 		return

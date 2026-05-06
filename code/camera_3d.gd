@@ -27,7 +27,7 @@ func _ready():
 
 func _input(event):
 	if event is InputEventMouseMotion:
-		mouse_pos = event.position
+		mouse_pos = get_viewport().get_mouse_position()
 	
 	if event is InputEventKey:
 		if event.pressed and event.keycode == KEY_SPACE:
@@ -58,7 +58,7 @@ func _process(_delta):
 	else:
 		# Считаем отклонение мыши от центра экрана
 		var viewport = get_viewport()
-		var viewport_center = viewport.size / 2
+		var viewport_center = viewport.get_visible_rect().size / 2
 		
 		# Нормализуем горизонтальное смещение от центра
 		var horizontal_offset = (mouse_pos.x - viewport_center.x) / viewport_center.x * -1

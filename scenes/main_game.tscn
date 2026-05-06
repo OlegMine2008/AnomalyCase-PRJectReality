@@ -31,6 +31,13 @@
 [ext_resource type="PackedScene" uid="uid://cyvx4flo5alx5" path="res://models/Felix/Test3dFelix.glb" id="21_ibnub"]
 [ext_resource type="AudioStream" uid="uid://bnu2wbp075sgf" path="res://audio/loop_static.wav" id="24_rr87q"]
 [ext_resource type="Script" uid="uid://b5o0nwuq27ffy" path="res://code/static_s.gd" id="25_rr87q"]
+[ext_resource type="Texture2D" uid="uid://cf46oet6o5jde" path="res://images/time/12am.png" id="32_q875d"]
+[ext_resource type="Texture2D" uid="uid://cxia6sg7bvd0b" path="res://images/time/1am.png" id="33_dvo3n"]
+[ext_resource type="Texture2D" uid="uid://da2q1gw5qkn36" path="res://images/time/2am.png" id="34_1vioj"]
+[ext_resource type="Texture2D" uid="uid://c7h8jigbgq82h" path="res://images/time/3am.png" id="35_g2o8j"]
+[ext_resource type="Texture2D" uid="uid://cb6ihuhygqbfu" path="res://images/time/4am.png" id="36_oojmo"]
+[ext_resource type="Texture2D" uid="uid://jthbi6vo58hl" path="res://images/time/5am.png" id="37_5noht"]
+[ext_resource type="Texture2D" uid="uid://dhfnor7x233j1" path="res://images/time/6am.png" id="38_4v0b0"]
 
 [sub_resource type="Environment" id="Environment_vnsdt"]
 ambient_light_source = 2
@@ -66,6 +73,35 @@ animations = [{
 [sub_resource type="SphereShape3D" id="SphereShape3D_ibnub"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_5wboo"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_mkn3m"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("32_q875d")
+}, {
+"duration": 1.0,
+"texture": ExtResource("33_dvo3n")
+}, {
+"duration": 1.0,
+"texture": ExtResource("34_1vioj")
+}, {
+"duration": 1.0,
+"texture": ExtResource("35_g2o8j")
+}, {
+"duration": 1.0,
+"texture": ExtResource("36_oojmo")
+}, {
+"duration": 1.0,
+"texture": ExtResource("37_5noht")
+}, {
+"duration": 1.0,
+"texture": ExtResource("38_4v0b0")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
 
 [node name="Office" type="Node3D" unique_id=679779917]
 
@@ -386,6 +422,10 @@ shape = SubResource("SphereShape3D_5wboo")
 [node name="CAT" type="Node" parent="Enemies" unique_id=159013863]
 
 [node name="TIME" type="Timer" parent="Enemies/CAT" unique_id=1241340494]
+
+[node name="clocks" type="AnimatedSprite2D" parent="." unique_id=1357132634]
+position = Vector2(524, -299)
+sprite_frames = SubResource("SpriteFrames_mkn3m")
 
 [editable path="Enemies/OlegTheCat/Test3dOleg"]
 [editable path="Enemies/FelixTheWolf/Test3dFelix"]
