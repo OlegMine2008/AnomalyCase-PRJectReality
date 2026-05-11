@@ -8,37 +8,35 @@ const STATE_OLEG := 1
 const STATE_FELIX := 2
 const STATE_EVERY := 3
 
-# Уровень ИИ
+const LOGIC_TO_CAMERA_ROOM := {
+	"Lab": "Back",
+	"Secret": "Back",
+}
+
 var bdifficulty = 0
-# Позиции Oleg по комнатам
-var real_cur = 'Eatery'
-var real_prev = ''
+var real_cur = "Eatery"
+var real_prev = ""
 var vision_cur = real_cur
 var vision_prev = real_prev
-# false = показываем vision-позицию, true = показываем real-позицию.
 var true_vision := false
-# Флаги "истинной" реальности
 var is_desynced = false
 var methode = "go_real"
-# Эти флаги пока не используются
 var officeleft = false
 var officeright = false
 var canjumpscare = false
 
-# Для лабиринтного алгоритма(комнаты и куда они ведут)
 var rooms = {
-  "Eatery": ["Kitchen", "Storage", "Kids"],
-  "Kitchen": ["Eatery", "Corr"],
-  "Storage": ["Eatery", "Way"],
-  "Corr": ["Kitchen", "Office"],
-  "Way": ["Storage", "Office"],
-  "Office": ["Corr", "Way"]
+	"Eatery": ["Kitchen", "Storage", "Kids"],
+	"Kitchen": ["Eatery", "Corr", "Lab"],
+	"Storage": ["Eatery", "Way", "Secret"],
+	"Corr": ["Kitchen", "Office"],
+	"Way": ["Storage", "Office"],
+	"Lab": ["Kitchen", "Behind"],
+	"Secret": ["Storage", "Behind"],
+	"Behind": ["Lab", "Secret", "Office"],
+	"Office": ["Corr", "Way"],
 }
 
-
-# Основная логика перемещения:
-# 1) считаем следующую комнату, 2) обрабатываем визуальный шаг,
-# 3) двигаем реальное положение, 4) логируем итог.
 func b():
 	var next = _get_next_room(real_cur, real_prev)
 	_apply_vision_move(next)
@@ -47,10 +45,8 @@ func b():
 	real_cur = next
 	if true_vision:
 		_sync_camera_move(real_prev, real_cur)
-	print('В реальности Олег находится в ', real_cur)
+	print("В реальности Олег находится в ", real_cur)
 
-# Обновляет "видимое" положение:
-# при desync + go_real визуальная позиция заморожена, иначе двигается синхронно.
 func _apply_vision_move(next_room: String) -> void:
 	if is_desynced and methode == "go_real":
 		return
@@ -60,18 +56,22 @@ func _apply_vision_move(next_room: String) -> void:
 	if not true_vision:
 		_sync_camera_move(vision_prev, vision_cur)
 
-# Получение комнаты
 func _get_next_room(current_room: String, previous_room: String) -> String:
-	# Общая точка входа: берём соседей, оставляем лучшие варианты и
-	# затем делаем финальный выбор между равноценными комнатами.
 	if not rooms.has(current_room):
 		return ""
+
+	if current_room == "Office":
+		return _choose_next_room(_get_office_candidates(previous_room))
 
 	var neighbors: Array = rooms[current_room]
 	var filtered_neighbors: Array[String] = _filter_neighbors(neighbors, previous_room)
 	return _choose_next_room(filtered_neighbors)
 
-# Фильтрация ненужных комнат-соседей(поиск короткого пути)
+func _get_office_candidates(previous_room: String) -> Array[String]:
+	if previous_room == "Behind":
+		return ["Behind"]
+	return ["Corr", "Way"]
+
 func _filter_neighbors(neighbors: Array, previous_room: String) -> Array[String]:
 	var source_neighbors: Array[String] = []
 	for neighbor in neighbors:
@@ -81,8 +81,6 @@ func _filter_neighbors(neighbors: Array, previous_room: String) -> Array[String]
 	if source_neighbors.is_empty():
 		return []
 
-	# Сначала запрещаем мгновенный возврат назад, но не ценой тупика:
-	# если после этого не остаётся вариантов, разрешаем идти обратно.
 	var candidate_neighbors: Array[String] = []
 	for neighbor in source_neighbors:
 		if neighbor != previous_room:
@@ -90,7 +88,6 @@ func _filter_neighbors(neighbors: Array, previous_room: String) -> Array[String]
 	if candidate_neighbors.is_empty():
 		candidate_neighbors = source_neighbors.duplicate()
 
-	# Оставляем только комнаты с минимальной дистанцией до Office.
 	var best_distance := INF
 	var best_neighbors: Array[String] = []
 	for neighbor in candidate_neighbors:
@@ -103,10 +100,7 @@ func _filter_neighbors(neighbors: Array, previous_room: String) -> Array[String]
 
 	return best_neighbors
 
-# Выбор наивыгоднейшей комнаты
 func _choose_next_room(neighbors: Array[String]) -> String:
-	# На этом этапе остаются только лучшие кандидаты.
-	# Если их несколько, выбираем случайно, пока без весов.
 	if neighbors.is_empty():
 		return ""
 	if neighbors.size() == 1:
@@ -142,7 +136,13 @@ func _get_distance_to_office(start_room: String) -> float:
 
 	return INF
 
+func _get_camera_room_name(room_name: String) -> String:
+	if LOGIC_TO_CAMERA_ROOM.has(room_name):
+		return String(LOGIC_TO_CAMERA_ROOM[room_name])
+	return room_name
+
 func _get_room_state(room_name: String) -> int:
+	room_name = _get_camera_room_name(room_name)
 	if cams == null:
 		return STATE_EMPTY
 	if not cams.current_camera_state.has(room_name):
@@ -153,26 +153,27 @@ func _sync_camera_move(from_room: String, to_room: String) -> void:
 	if cams == null and not _ensure_cams():
 		return
 
-	# Убираем Oleg из предыдущей камеры с учетом Felix (Every -> Felix).
-	if from_room != "":
-		var from_state := _get_room_state(from_room)
-		if from_state == STATE_OLEG:
-			cams.set_camera_state(from_room, STATE_EMPTY)
-		elif from_state == STATE_EVERY:
-			cams.set_camera_state(from_room, STATE_FELIX)
-
-	# Если целевой камеры нет (например, офис), на этом завершаем.
-	if to_room == "":
+	var from_camera_room := _get_camera_room_name(from_room)
+	var to_camera_room := _get_camera_room_name(to_room)
+	if from_camera_room == to_camera_room:
 		return
 
-	# Ставим Oleg в целевую камеру с учетом Felix (Felix -> Every).
-	var to_state := _get_room_state(to_room)
-	if to_state == STATE_EMPTY:
-		cams.set_camera_state(to_room, STATE_OLEG)
-	elif to_state == STATE_FELIX:
-		cams.set_camera_state(to_room, STATE_EVERY)
+	if from_camera_room != "":
+		var from_state := _get_room_state(from_camera_room)
+		if from_state == STATE_OLEG:
+			cams.set_camera_state(from_camera_room, STATE_EMPTY)
+		elif from_state == STATE_EVERY:
+			cams.set_camera_state(from_camera_room, STATE_FELIX)
 
-# Публичный переключатель режима отображения Oleg на камерах.
+	if to_camera_room == "":
+		return
+
+	var to_state := _get_room_state(to_camera_room)
+	if to_state == STATE_EMPTY:
+		cams.set_camera_state(to_camera_room, STATE_OLEG)
+	elif to_state == STATE_FELIX:
+		cams.set_camera_state(to_camera_room, STATE_EVERY)
+
 func set_true_vision(enabled: bool) -> void:
 	if true_vision == enabled:
 		return
@@ -181,7 +182,6 @@ func set_true_vision(enabled: bool) -> void:
 		true_vision = enabled
 		return
 
-	# При смене режима переносим маркер между видимой и реальной позицией.
 	if enabled:
 		_sync_camera_move(vision_cur, real_cur)
 	else:
@@ -206,22 +206,19 @@ func _ready() -> void:
 	oleg_time.autostart = true
 	if oleg_time.is_stopped():
 		oleg_time.start()
-	
-	real_cur = 'Eatery'
-	real_prev = ''
+
+	real_cur = "Eatery"
+	real_prev = ""
 
 func _on_oleg_time_timeout() -> void:
 	if randf_range(1, 21) < bdifficulty:
 		b()
-	# В Office рассинхрон всегда выключен и не меняется.
 	if real_cur == "Office":
 		is_desynced = false
 		return
-	# Вне Office рассинхрон включается по шансу от интеллекта только один раз (false -> true).
 	if not is_desynced and randf_range(bdifficulty, 101) > (bdifficulty * 5):
 		is_desynced = true
-		print('Рассинхронизация противника - ', is_desynced)
+		print("Рассинхронизация противника - ", is_desynced)
 
-# Совместимость со старыми подключениями сигнала.
 func _on_btimer_timeout() -> void:
 	_on_oleg_time_timeout()

@@ -25,6 +25,8 @@ func _ready():
 	pitch_scale = IDLE_PITCH
 	volume_db = IDLE_VOLUME_DB
 	stop()
+	if not finished.is_connected(_on_stream_finished):
+		finished.connect(_on_stream_finished)
 
 
 func set_tablet_active(is_open: bool) -> void:
@@ -88,3 +90,11 @@ func _stop_audio_tween() -> void:
 	if _audio_tween != null and is_instance_valid(_audio_tween):
 		_audio_tween.kill()
 	_audio_tween = null
+
+func _on_stream_finished() -> void:
+	if not _tablet_open:
+		return
+	_stop_audio_tween()
+	pitch_scale = IDLE_PITCH
+	volume_db = IDLE_VOLUME_DB
+	play()
