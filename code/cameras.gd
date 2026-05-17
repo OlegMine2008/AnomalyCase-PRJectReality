@@ -65,6 +65,7 @@ var current_camera_state: Dictionary[String, int] = {}
 var _pending_visible_state: Dictionary[String, int] = {}
 var _pending_visible_token: Dictionary[String, int] = {}
 
+# Инициализирует ноды камер, кнопки и стартовый видимый фид.
 func _ready() -> void:
 	_cache_nodes()
 	_init_cameras()
@@ -83,6 +84,7 @@ func _ready() -> void:
 
 	set_camera_state("Eatery", 3)
 
+# Скрывает/показывает интерфейс камер синхронно с состоянием планшета.
 func _process(_delta: float) -> void:
 	if offic == null:
 		return
@@ -101,6 +103,7 @@ func _process(_delta: float) -> void:
 	if cam_hud is Node2D:
 		(cam_hud as Node2D).visible = show_cam_interface
 
+# Кэширует ссылки на спрайты фидов и кнопки переключения камер.
 func _cache_nodes() -> void:
 	var cam_sys := get_parent()
 	if cam_sys == null:
@@ -119,6 +122,7 @@ func _cache_nodes() -> void:
 		if child is TextureButton:
 			buttons_by_name[child.name] = child
 
+# Подключает сигнал toggled у доступных кнопок камер.
 func _connect_buttons() -> void:
 	for button_name: String in BUTTON_TO_FEED.keys():
 		if not buttons_by_name.has(button_name):
@@ -129,6 +133,7 @@ func _connect_buttons() -> void:
 		if not btn.toggled.is_connected(callback):
 			btn.toggled.connect(callback)
 
+# Сбрасывает состояния камер и подгружает стартовые текстуры.
 func _init_cameras() -> void:
 	for cam_name: String in CAMERAS_IMAGES.keys():
 		current_camera_state[cam_name] = 0
@@ -147,6 +152,7 @@ func _init_cameras() -> void:
 		else:
 			print("Не загрузилась текстура: ", path)
 
+# Синхронизирует стартовую нажатую кнопку с активным фидом.
 func _sync_initial_button_state() -> void:
 	for button_name: String in BUTTON_TO_FEED.keys():
 		if not buttons_by_name.has(button_name):
@@ -167,6 +173,7 @@ func _sync_initial_button_state() -> void:
 
 	buttons_by_name[button_name].button_pressed = true
 
+# Переключает видимый фид при активации кнопки камеры.
 func _on_cam_button_toggled(toggled_on: bool, button_name: String) -> void:
 	if not toggled_on:
 		return
@@ -176,6 +183,7 @@ func _on_cam_button_toggled(toggled_on: bool, button_name: String) -> void:
 	var feed_name: String = BUTTON_TO_FEED[button_name]
 	_show_only_feed(feed_name)
 
+# Возвращает имя текущего видимого camera feed.
 func _get_visible_feed_name() -> String:
 	for feed_name: String in feeds_by_name.keys():
 		var feed: Sprite2D = feeds_by_name[feed_name]
@@ -183,12 +191,14 @@ func _get_visible_feed_name() -> String:
 			return feed_name
 	return ""
 
+# Возвращает имя кнопки, отвечающей за конкретный feed.
 func _get_button_name_for_feed(feed_name: String) -> String:
 	for button_name: String in BUTTON_TO_FEED.keys():
 		if BUTTON_TO_FEED[button_name] == feed_name:
 			return button_name
 	return ""
 
+# Показывает только один фид, скрывая остальные.
 func _show_only_feed(feed_name: String) -> void:
 	if not feeds_by_name.has(feed_name):
 		return
@@ -199,6 +209,7 @@ func _show_only_feed(feed_name: String) -> void:
 
 	feeds_by_name[feed_name].visible = true
 
+# Программно выбирает камеру как при ручном клике по кнопке.
 func select_camera_by_button(button_name: String) -> void:
 	if not BUTTON_TO_FEED.has(button_name):
 		return
@@ -212,9 +223,11 @@ func select_camera_by_button(button_name: String) -> void:
 	btn.button_pressed = true
 	_on_cam_button_toggled(true, button_name)
 
+# Возвращает имя текущего активного фида для внешних систем.
 func get_current_feed_name() -> String:
 	return _get_visible_feed_name()
 
+# Меняет состояние комнаты и применяет нужную текстуру на фиде.
 func set_camera_state(cam_name: String, state_index: int) -> void:
 	if not CAMERAS_IMAGES.has(cam_name):
 		return
@@ -231,6 +244,7 @@ func set_camera_state(cam_name: String, state_index: int) -> void:
 
 	_apply_camera_state_immediately(cam_name, state_index)
 
+# Возвращает true, если апдейт активного фида лучше отложить через вспышку.
 func _should_defer_visible_state_update(cam_name: String) -> bool:
 	if offic == null:
 		return false
@@ -238,6 +252,7 @@ func _should_defer_visible_state_update(cam_name: String) -> bool:
 		return false
 	return get_current_feed_name() == cam_name
 
+# Ставит обновление активного фида в очередь и запускает flash-переход.
 func _queue_visible_camera_state_update(cam_name: String, state_index: int) -> void:
 	var token: int = int(_pending_visible_token.get(cam_name, 0)) + 1
 	_pending_visible_token[cam_name] = token
@@ -250,6 +265,7 @@ func _queue_visible_camera_state_update(cam_name: String, state_index: int) -> v
 	else:
 		_apply_pending_visible_state(cam_name, token)
 
+# Применяет только актуальное отложенное состояние по token-защите.
 func _apply_pending_visible_state(cam_name: String, token: int) -> void:
 	if not _pending_visible_token.has(cam_name):
 		return
@@ -263,6 +279,7 @@ func _apply_pending_visible_state(cam_name: String, token: int) -> void:
 	_pending_visible_token.erase(cam_name)
 	_apply_camera_state_immediately(cam_name, state_index)
 
+# Сразу подгружает и ставит текстуру для указанного состояния камеры.
 func _apply_camera_state_immediately(cam_name: String, state_index: int) -> void:
 	var path: String = _get_camera_texture_path(cam_name, state_index)
 	if path.is_empty():
@@ -271,6 +288,7 @@ func _apply_camera_state_immediately(cam_name: String, state_index: int) -> void
 		var sprite: Sprite2D = feeds_by_name[cam_name]
 		sprite.texture = load(path)
 
+# Возвращает путь к текстуре по имени камеры и индексу состояния.
 func _get_camera_texture_path(cam_name: String, state_index: int) -> String:
 	if state_index < 0 or state_index >= CAMERA_STATE_KEYS.size():
 		return ""

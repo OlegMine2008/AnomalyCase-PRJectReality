@@ -9,10 +9,12 @@ var lab_but: TextureButton
 var behind_but: TextureButton
 var cams: Cameras
 var oleg_ai: Node
+var felix_ai: Node
 
 # Защита от зацикливания, когда мы программно меняем button_pressed.
 var _mode_switch_in_progress := false
 
+# Инициализирует ссылки на кнопки, камеры и ИИ для синхронизации режимов.
 func _ready() -> void:
 	# Получаем ссылки на кнопки переключения режимов сверху HUD.
 	seen_mode_but = get_node_or_null("seen_mode") as TextureButton
@@ -30,6 +32,8 @@ func _ready() -> void:
 
 	# Ссылка на ИИ Олега, чтобы синхронизировать выбранный режим отображения.
 	oleg_ai = get_node_or_null("../../Enemies/OlegTheCat")
+	# Ссылка на ИИ Felix для такого же переключения vision/real режима.
+	felix_ai = get_node_or_null("../../Enemies/FelixTheWolf")
 
 	_connect_mode_buttons()
 
@@ -38,6 +42,7 @@ func _ready() -> void:
 	_apply_mode(start_true_mode)
 
 
+# Подключает сигналы переключателей seen/true режима.
 func _connect_mode_buttons() -> void:
 	# Подключаем обработчики только один раз.
 	if seen_mode_but != null:
@@ -51,18 +56,21 @@ func _connect_mode_buttons() -> void:
 			true_mode_but.toggled.connect(true_callback)
 
 
+# Обрабатывает выбор seen-режима и отключает true-слой.
 func _on_seen_mode_toggled(toggled_on: bool) -> void:
 	if _mode_switch_in_progress or not toggled_on:
 		return
 	_apply_mode(false)
 
 
+# Обрабатывает выбор true-режима и включает реальный слой.
 func _on_true_mode_toggled(toggled_on: bool) -> void:
 	if _mode_switch_in_progress or not toggled_on:
 		return
 	_apply_mode(true)
 
 
+# Применяет режим отображения камер и синхронизирует его с ИИ.
 func _apply_mode(is_true: bool) -> void:
 	# Переключаем внутренний флаг режима (false = seen, true = real/true).
 	true_vision = is_true
@@ -87,8 +95,12 @@ func _apply_mode(is_true: bool) -> void:
 	# Передаём выбранный режим в Oleg AI.
 	if oleg_ai != null and oleg_ai.has_method("set_true_vision"):
 		oleg_ai.call("set_true_vision", true_vision)
+	# Передаём выбранный режим в Felix AI.
+	if felix_ai != null and felix_ai.has_method("set_true_vision"):
+		felix_ai.call("set_true_vision", true_vision)
 
 
+# Переключает видимость дополнительных кнопок true-режима.
 func _set_extra_camera_buttons_visible(visible_state: bool) -> void:
 	# Камеры, доступные только в true-режиме.
 	_set_button_state(secret_but, visible_state)
@@ -96,6 +108,7 @@ func _set_extra_camera_buttons_visible(visible_state: bool) -> void:
 	_set_button_state(behind_but, visible_state)
 
 
+# Применяет состояние одной кнопки и очищает pressed при скрытии.
 func _set_button_state(button: TextureButton, visible_state: bool) -> void:
 	if button == null:
 		return

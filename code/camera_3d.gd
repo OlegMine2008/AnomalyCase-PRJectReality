@@ -17,6 +17,7 @@ var cams_on = false
 var mouse_pos = Vector2()
 var cam_transition_done = false
 
+# Выставляет начальные параметры положения/поворота офисной камеры.
 func _ready():
 	current_rotation_y = rotation.y
 	target_rotation_y = rotation.y
@@ -25,6 +26,7 @@ func _ready():
 	position.z = z_pos
 	target_pos = Vector3(x_pos, y_pos, z_pos)
 
+# Обрабатывает мышь и переключение режима планшета по клавише Space.
 func _input(event):
 	if event is InputEventMouseMotion:
 		mouse_pos = get_viewport().get_mouse_position()
@@ -44,6 +46,7 @@ func _input(event):
 				y_pos = 0.0
 				z_pos = 0.0
 
+# Плавно двигает и поворачивает камеру, а также считает завершение перехода.
 func _process(_delta):
 	# Плавное движение камеры к целевым координатам
 	position.x = lerp(position.x, x_pos, rotation_smoothness)

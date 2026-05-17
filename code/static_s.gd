@@ -19,7 +19,7 @@ const IDLE_VOLUME_DB := 2.0
 # Держим запас по уровню, чтобы избежать клиппинга/искажений.
 const FLASH_VOLUME_DB := 4.5
 
-
+# Инициализирует базовые параметры статики и подписывается на конец трека.
 func _ready():
 	# База задаётся жёстко и больше нигде не перерассчитывается.
 	pitch_scale = IDLE_PITCH
@@ -29,6 +29,7 @@ func _ready():
 		finished.connect(_on_stream_finished)
 
 
+# Включает/выключает зацикленный звук планшета в стабильных параметрах.
 func set_tablet_active(is_open: bool) -> void:
 	# Если состояние не изменилось, но планшет открыт и звук почему-то встал,
 	# поднимаем воспроизведение в базовых параметрах.
@@ -56,6 +57,7 @@ func set_tablet_active(is_open: bool) -> void:
 			stop()
 
 
+# Запускает кратковременный буст громкости для "вспышки" статики.
 func trigger_sound_flash() -> void:
 	# Эффект вспышки звука разрешён только при открытом планшете.
 	if not _tablet_open:
@@ -86,11 +88,13 @@ func trigger_sound_flash() -> void:
 	volume_tween.set_ease(Tween.EASE_OUT)
 
 
+# Останавливает текущий tween аудио-эффекта перед новым запуском.
 func _stop_audio_tween() -> void:
 	if _audio_tween != null and is_instance_valid(_audio_tween):
 		_audio_tween.kill()
 	_audio_tween = null
 
+# Перезапускает зацикленную статику после естественного окончания трека.
 func _on_stream_finished() -> void:
 	if not _tablet_open:
 		return

@@ -7,11 +7,15 @@ const STATE_EMPTY := 0
 const STATE_OLEG := 1
 const STATE_FELIX := 2
 const STATE_EVERY := 3
+const DESYNC_COOLDOWN_MOVES := 3
+const DESYNC_MIN_CHANCE := 0.12
+const DESYNC_MAX_CHANCE := 0.42
 
 const LOGIC_TO_CAMERA_ROOM := {
 	"Lab": "Back",
 	"Secret": "Back",
 }
+const DESYNC_TRIGGER_ROOMS := ["Lab", "Secret", "Behind"]
 
 # Подготовленные режимы method(e):
 # go_* - двигается только указанный слой (второй может быть "заморожен" в будущем);
@@ -38,6 +42,7 @@ var methode = METHOD_GO_REAL
 var officeleft = false
 var officeright = false
 var canjumpscare = false
+var _moves_since_desync := DESYNC_COOLDOWN_MOVES
 
 var rooms = {
 	"Eatery": ["Kitchen", "Storage", "Kids"],
@@ -55,13 +60,18 @@ var rooms = {
 # считает следующую комнату, синхронизирует vision-слой и затем real-слой.
 func b():
 	var next = _get_next_room(real_cur, real_prev)
+	if next == "":
+		return
+
 	_apply_vision_move(next)
 
 	real_prev = real_cur
 	real_cur = next
+	_moves_since_desync += 1
 	if true_vision:
 		_sync_camera_move(real_prev, real_cur)
 	print("В реальности Олег находится в ", real_cur)
+	_try_enable_desync(_is_desync_trigger_room(real_cur))
 
 # Обновляет "видимую" (vision) позицию противника.
 # Пока активен только текущий сценарий desync для go_real.
@@ -197,11 +207,41 @@ func _sync_camera_move(from_room: String, to_room: String) -> void:
 	if to_camera_room == "":
 		return
 
+	# Страховка от "двойного присутствия": удаляем Oleg из всех прочих комнат.
+	_clear_oleg_presence_except(to_camera_room)
+
 	var to_state := _get_room_state(to_camera_room)
 	if to_state == STATE_EMPTY:
 		cams.set_camera_state(to_camera_room, STATE_OLEG)
 	elif to_state == STATE_FELIX:
-		cams.set_camera_state(to_camera_room, STATE_EVERY)
+		if _room_supports_every_state(to_camera_room):
+			cams.set_camera_state(to_camera_room, STATE_EVERY)
+		else:
+			# Если "Every" не поддержан текстурами комнаты, приоритет отдаём Oleg.
+			cams.set_camera_state(to_camera_room, STATE_OLEG)
+
+# Гарантированно оставляет Oleg только в одной комнате камеры.
+func _clear_oleg_presence_except(except_camera_room: String) -> void:
+	if cams == null:
+		return
+	for room_name in cams.current_camera_state.keys():
+		var camera_room := String(room_name)
+		if camera_room == except_camera_room:
+			continue
+		var state := int(cams.current_camera_state[camera_room])
+		if state == STATE_OLEG:
+			cams.set_camera_state(camera_room, STATE_EMPTY)
+		elif state == STATE_EVERY:
+			cams.set_camera_state(camera_room, STATE_FELIX)
+
+# Проверяет, поддерживает ли конкретный camera feed состояние "Every".
+func _room_supports_every_state(camera_room: String) -> bool:
+	if cams == null:
+		return false
+	if not cams.CAMERAS_IMAGES.has(camera_room):
+		return false
+	var room_states: Dictionary = cams.CAMERAS_IMAGES[camera_room]
+	return room_states.has("Every")
 
 # Переключает режим отображения позиции Oleg на камерах (vision/real).
 func set_true_vision(enabled: bool) -> void:
@@ -253,6 +293,38 @@ func _ready() -> void:
 
 	real_cur = "Eatery"
 	real_prev = ""
+	vision_cur = real_cur
+	vision_prev = real_prev
+	_moves_since_desync = DESYNC_COOLDOWN_MOVES
+
+# Возвращает true, если вход в комнату должен принудительно включать рассинхрон.
+func _is_desync_trigger_room(room_name: String) -> bool:
+	return DESYNC_TRIGGER_ROOMS.has(room_name)
+
+# Возвращает шанс рассинхрона от уровня ИИ в безопасных границах.
+func _get_desync_chance_by_level() -> float:
+	var normalized_level = clamp(float(bdifficulty) / 20.0, 0.0, 1.0)
+	return lerpf(DESYNC_MIN_CHANCE, DESYNC_MAX_CHANCE, normalized_level)
+
+# Активирует рассинхрон и сбрасывает кулдаун счётчика повторного включения.
+func _enable_desync(reason: String) -> void:
+	if is_desynced:
+		return
+	is_desynced = true
+	_moves_since_desync = 0
+	print("Рассинхронизация противника включена (%s)." % reason)
+
+# Пытается включить рассинхрон: принудительно от комнаты или случайно от уровня.
+func _try_enable_desync(force_enable: bool = false) -> void:
+	if is_desynced:
+		return
+	if force_enable:
+		_enable_desync("room_trigger")
+		return
+	if _moves_since_desync < DESYNC_COOLDOWN_MOVES:
+		return
+	if randf() <= _get_desync_chance_by_level():
+		_enable_desync("random_roll")
 
 # Обработчик тика AI: проверка шанса хода и логики рассинхрона.
 func _on_oleg_time_timeout() -> void:
@@ -261,9 +333,6 @@ func _on_oleg_time_timeout() -> void:
 	if real_cur == "Office":
 		is_desynced = false
 		return
-	if not is_desynced and randf_range(bdifficulty, 101) > (bdifficulty * 5):
-		is_desynced = true
-		print("Рассинхронизация противника - ", is_desynced)
 
 # Совместимость со старыми подключениями сигнала.
 func _on_btimer_timeout() -> void:

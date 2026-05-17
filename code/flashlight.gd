@@ -5,11 +5,13 @@ var cam_on = false
 var mouse_pos = Vector2()
 var sensitivity = 2
 
+# Сбрасывает состояние фонаря при старте сцены.
 func _ready():
 	is_on = false
 	self.visible = is_on
 	var _initial_rotation = rotation
 
+# Обрабатывает включение фонаря и блокировку при открытом планшете.
 func _input(event):
 	# Переключение прожектора
 	if event is InputEventMouseButton:
@@ -30,6 +32,7 @@ func _input(event):
 			is_on = false
 			self.visible = is_on
 
+# Поворачивает луч фонаря в сторону курсора с ограничением углов.
 func update_light_rotation():	
 	# Получаем размер видимой области viewport (с учетом aspect keep)
 	var viewport_size = get_viewport().get_visible_rect().size

@@ -15,6 +15,7 @@ const AI_FLASH_HOLD_TIME := 0.5
 var _prev_show_cam_ui := false
 var _static_tween: Tween = null
 
+# Инициализирует зависимости системы камер и подключает обработчики кнопок.
 func _ready():
 	if cams == null:
 		push_error("Cam_Sys: export 'cams' is not assigned.")
@@ -35,6 +36,7 @@ func _ready():
 	_prev_show_cam_ui = offic.cams_on and offic.cam_transition_done
 	_set_static_sound_active(_prev_show_cam_ui)
 
+# Управляет видимостью UI камер и проигрыванием статики при открытии/закрытии.
 func _process(_delta: float):
 	if cams == null or offic == null:
 		return
@@ -59,6 +61,7 @@ func _process(_delta: float):
 
 	_prev_show_cam_ui = show_cam_ui
 
+# Рекурсивно подключает обработчик нажатия ко всем кнопкам в поддереве.
 func _connect_buttons_recursive(root: Node) -> void:
 	for child in root.get_children():
 		if child is BaseButton:
@@ -68,6 +71,7 @@ func _connect_buttons_recursive(root: Node) -> void:
 				button.pressed.connect(callback)
 		_connect_buttons_recursive(child)
 
+# Запускает визуальную вспышку при клике по элементам камерного интерфейса.
 func _on_cam_sys_button_pressed() -> void:
 	if offic == null:
 		return
@@ -76,6 +80,7 @@ func _on_cam_sys_button_pressed() -> void:
 		return
 	_trigger_static_flash()
 
+# Делает короткую вспышку статики с плавным затуханием.
 func _trigger_static_flash() -> void:
 	_stop_static_tween()
 	_set_static_alpha(FLASH_ALPHA)
@@ -88,6 +93,7 @@ func _trigger_static_flash() -> void:
 	fade_tween.set_trans(Tween.TRANS_SINE)
 	fade_tween.set_ease(Tween.EASE_OUT)
 
+# Показывает AI-вспышку и применяет callback смены картинки в середине эффекта.
 func trigger_ai_transition_flash(apply_callback: Callable, hold_time: float = AI_FLASH_HOLD_TIME) -> void:
 	if offic == null:
 		if apply_callback.is_valid():
@@ -113,16 +119,19 @@ func trigger_ai_transition_flash(apply_callback: Callable, hold_time: float = AI
 	fade_tween.set_trans(Tween.TRANS_SINE)
 	fade_tween.set_ease(Tween.EASE_OUT)
 
+# Останавливает текущий tween статики перед запуском нового.
 func _stop_static_tween() -> void:
 	if _static_tween != null and is_instance_valid(_static_tween):
 		_static_tween.kill()
 	_static_tween = null
 
+# Обновляет прозрачность слоя статики.
 func _set_static_alpha(alpha: float) -> void:
 	var color := static_layer.modulate
 	color.a = alpha
 	static_layer.modulate = color
 
+# Включает или отключает зацикленный звук статики планшета.
 func _set_static_sound_active(active: bool) -> void:
 	if static_sound_node == null:
 		return
