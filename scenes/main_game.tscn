@@ -1,5 +1,6 @@
 [gd_scene format=3 uid="uid://e5ohsimiuqvw"]
 
+[ext_resource type="Script" uid="uid://b73o807thx833" path="res://code/game.gd" id="1_ibep1"]
 [ext_resource type="Script" uid="uid://cagn47vbj4bnw" path="res://code/camera_3d.gd" id="2_72e8q"]
 [ext_resource type="PackedScene" uid="uid://6wx18ppm1x8x" path="res://models/office/Roons.glb" id="2_d2op2"]
 [ext_resource type="Script" uid="uid://8fm0qtsm0317" path="res://code/flashlight.gd" id="3_d2op2"]
@@ -98,6 +99,7 @@ animations = [{
 }]
 
 [node name="Office" type="Node3D" unique_id=679779917]
+script = ExtResource("1_ibep1")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=712158051]
 environment = SubResource("Environment_vnsdt")
