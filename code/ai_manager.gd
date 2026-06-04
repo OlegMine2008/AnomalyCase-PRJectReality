@@ -2,8 +2,8 @@ extends Node
 
 #@export_range(0, 20, 1) var oleg_level: int = 0
 #@export_range(0, 20, 1) var felix_level: int = 0
-var oleg_level = 6
-var felix_level = 7
+var oleg_level = 4
+var felix_level = 3
 
 # Инициализирует генератор случайности и стартовые уровни ИИ.
 func _ready() -> void:

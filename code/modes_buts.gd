@@ -86,18 +86,18 @@ func _apply_mode(is_true: bool) -> void:
 		true_mode_but.button_pressed = true_vision
 	_mode_switch_in_progress = false
 
-	# В seen_mode нельзя оставаться на real-only камерах, возвращаемся на Eatery.
-	if not true_vision and cams != null:
-		var current_feed := cams.get_current_feed_name()
-		if current_feed == "Back" or current_feed == "Behind":
-			cams.select_camera_by_button("eatery_but")
-
 	# Передаём выбранный режим в Oleg AI.
 	if oleg_ai != null and oleg_ai.has_method("set_true_vision"):
 		oleg_ai.call("set_true_vision", true_vision)
 	# Передаём выбранный режим в Felix AI.
 	if felix_ai != null and felix_ai.has_method("set_true_vision"):
 		felix_ai.call("set_true_vision", true_vision)
+
+	# Сначала пересобираем состояние AI, и только потом уводим игрока с true-only камер.
+	if not true_vision and cams != null:
+		var current_feed := cams.get_current_feed_name()
+		if current_feed == "Behind" or current_feed == "Secret" or current_feed == "Lab":
+			cams.select_camera_by_button("eatery_but")
 
 
 # Переключает видимость дополнительных кнопок true-режима.

@@ -11,8 +11,13 @@ const BUTTON_TO_FEED: Dictionary[String, String] = {
 	"salvag_but": "Storage",
 	"way_but": "Way",
 	"behind_but": "Behind",
-	"secret_but": "Back",
-	"lab_but": "Back",
+	"secret_but": "Secret",
+	"lab_but": "Lab",
+}
+
+const FEED_TO_SPRITE: Dictionary[String, String] = {
+	"Secret": "Back",
+	"Lab": "Back",
 }
 
 const CAMERAS_IMAGES: Dictionary = {
@@ -51,6 +56,14 @@ const CAMERAS_IMAGES: Dictionary = {
 		"Oleg": "res://images/cameras/behind/behind_o.png",
 	},
 	"Back": {
+		"Empty": "res://images/cameras/background/back.png",
+		"Oleg": "res://images/cameras/background/back_o.png",
+	},
+	"Secret": {
+		"Empty": "res://images/cameras/background/back.png",
+		"Oleg": "res://images/cameras/background/back_o.png",
+	},
+	"Lab": {
 		"Empty": "res://images/cameras/background/back.png",
 		"Oleg": "res://images/cameras/background/back_o.png",
 	},
@@ -200,14 +213,15 @@ func _get_button_name_for_feed(feed_name: String) -> String:
 
 # Показывает только один фид, скрывая остальные.
 func _show_only_feed(feed_name: String) -> void:
-	if not feeds_by_name.has(feed_name):
+	var sprite_name := _get_sprite_name_for_feed(feed_name)
+	if not feeds_by_name.has(sprite_name):
 		return
 
 	for f_name: String in feeds_by_name.keys():
 		var f: Sprite2D = feeds_by_name[f_name]
 		f.visible = false
 
-	feeds_by_name[feed_name].visible = true
+	feeds_by_name[sprite_name].visible = true
 
 # Программно выбирает камеру как при ручном клике по кнопке.
 func select_camera_by_button(button_name: String) -> void:
@@ -225,6 +239,11 @@ func select_camera_by_button(button_name: String) -> void:
 
 # Возвращает имя текущего активного фида для внешних систем.
 func get_current_feed_name() -> String:
+	for button_name: String in BUTTON_TO_FEED.keys():
+		if not buttons_by_name.has(button_name):
+			continue
+		if buttons_by_name[button_name].button_pressed:
+			return BUTTON_TO_FEED[button_name]
 	return _get_visible_feed_name()
 
 # Меняет состояние комнаты и применяет нужную текстуру на фиде.
@@ -242,7 +261,34 @@ func set_camera_state(cam_name: String, state_index: int) -> void:
 		_queue_visible_camera_state_update(cam_name, state_index)
 		return
 
+	_clear_pending_state(cam_name)
 	_apply_camera_state_immediately(cam_name, state_index)
+
+func _clear_pending_state(cam_name: String) -> void:
+	_pending_visible_state.erase(cam_name)
+	_pending_visible_token.erase(cam_name)
+
+# Принудительно приводит texture feed в соответствие с current_camera_state.
+func refresh_camera_feed(cam_name: String, force_immediate: bool = false) -> void:
+	if not current_camera_state.has(cam_name):
+		return
+
+	var state_index := int(current_camera_state[cam_name])
+	if force_immediate:
+		_clear_pending_state(cam_name)
+		_apply_camera_state_immediately(cam_name, state_index)
+		return
+
+	if _should_defer_visible_state_update(cam_name):
+		_queue_visible_camera_state_update(cam_name, state_index)
+		return
+
+	_clear_pending_state(cam_name)
+	_apply_camera_state_immediately(cam_name, state_index)
+
+func refresh_all_camera_feeds(force_immediate: bool = false) -> void:
+	for cam_name_variant in current_camera_state.keys():
+		refresh_camera_feed(String(cam_name_variant), force_immediate)
 
 # Возвращает true, если апдейт активного фида лучше отложить через вспышку.
 func _should_defer_visible_state_update(cam_name: String) -> bool:
@@ -250,7 +296,7 @@ func _should_defer_visible_state_update(cam_name: String) -> bool:
 		return false
 	if not (offic.cams_on and offic.cam_transition_done):
 		return false
-	return get_current_feed_name() == cam_name
+	return _get_sprite_name_for_feed(get_current_feed_name()) == _get_sprite_name_for_feed(cam_name)
 
 # Ставит обновление активного фида в очередь и запускает flash-переход.
 func _queue_visible_camera_state_update(cam_name: String, state_index: int) -> void:
@@ -275,8 +321,7 @@ func _apply_pending_visible_state(cam_name: String, token: int) -> void:
 		return
 
 	var state_index: int = int(_pending_visible_state[cam_name])
-	_pending_visible_state.erase(cam_name)
-	_pending_visible_token.erase(cam_name)
+	_clear_pending_state(cam_name)
 	_apply_camera_state_immediately(cam_name, state_index)
 
 # Сразу подгружает и ставит текстуру для указанного состояния камеры.
@@ -284,9 +329,15 @@ func _apply_camera_state_immediately(cam_name: String, state_index: int) -> void
 	var path: String = _get_camera_texture_path(cam_name, state_index)
 	if path.is_empty():
 		return
-	if feeds_by_name.has(cam_name):
-		var sprite: Sprite2D = feeds_by_name[cam_name]
+	var sprite_name := _get_sprite_name_for_feed(cam_name)
+	if feeds_by_name.has(sprite_name):
+		var sprite: Sprite2D = feeds_by_name[sprite_name]
 		sprite.texture = load(path)
+
+func _get_sprite_name_for_feed(feed_name: String) -> String:
+	if FEED_TO_SPRITE.has(feed_name):
+		return String(FEED_TO_SPRITE[feed_name])
+	return feed_name
 
 # Возвращает путь к текстуре по имени камеры и индексу состояния.
 func _get_camera_texture_path(cam_name: String, state_index: int) -> String:

@@ -14,8 +14,8 @@ const PATHS_TO_OFFICE := {
 	Route.VIA_LAB: [Room.Kitchen, Room.Lab, Room.Behind, Room.Office],
 }
 const LOGIC_TO_CAMERA_ROOM := {
-	Room.Secret: "Back",
-	Room.Lab: "Back",
+	Room.Secret: "Secret",
+	Room.Lab: "Lab",
 }
 const DESYNC_TRIGGER_ROOMS := [Room.Secret, Room.Lab]
 
@@ -158,6 +158,50 @@ func _ensure_camera() -> bool:
 	camera = get_node_or_null("../../Cam_Sys/Cam_Buttons") as Cameras
 	return camera != null
 
+func _room_supports_every_state(camera_room: String) -> bool:
+	if camera == null:
+		return false
+	if not camera.CAMERAS_IMAGES.has(camera_room):
+		return false
+	var room_states: Dictionary = camera.CAMERAS_IMAGES[camera_room]
+	return room_states.has("Every")
+
+func _get_display_room() -> int:
+	return real_cur if true_vision else vision_cur
+
+# Полная пересборка не даёт Felix застревать в старом слое после смены режима.
+func _resync_camera_presence() -> void:
+	if camera == null and not _ensure_camera():
+		return
+
+	var display_room := _get_display_room()
+	var display_camera_room := _get_camera_room_name(display_room)
+	var affected_camera_rooms: Dictionary[String, bool] = {}
+
+	for room_name in camera.current_camera_state.keys():
+		var camera_room := String(room_name)
+		affected_camera_rooms[camera_room] = true
+		var state := int(camera.current_camera_state[camera_room])
+		if state == STATE_FELIX:
+			camera.set_camera_state(camera_room, STATE_EMPTY)
+		elif state == STATE_EVERY:
+			camera.set_camera_state(camera_room, STATE_OLEG)
+
+	if display_camera_room == "":
+		for camera_room in affected_camera_rooms.keys():
+			camera.refresh_camera_feed(camera_room, true)
+		return
+
+	var display_state := _get_room_state(display_room)
+	if display_state == STATE_EMPTY:
+		camera.set_camera_state(display_camera_room, STATE_FELIX)
+	elif display_state == STATE_OLEG and _room_supports_every_state(display_camera_room):
+		camera.set_camera_state(display_camera_room, STATE_EVERY)
+
+	affected_camera_rooms[display_camera_room] = true
+	for camera_room in affected_camera_rooms.keys():
+		camera.refresh_camera_feed(camera_room, true)
+
 # Синхронизирует перемещение Felix в camera-состояниях (from -> to).
 func _sync_camera_move(from_room: int, to_room: int) -> void:
 	if camera == null and not _ensure_camera():
@@ -181,7 +225,7 @@ func _sync_camera_move(from_room: int, to_room: int) -> void:
 	var to_state := _get_room_state(to_room)
 	if to_state == STATE_EMPTY:
 		camera.set_camera_state(to_camera_room, STATE_FELIX)
-	elif to_state == STATE_OLEG:
+	elif to_state == STATE_OLEG and _room_supports_every_state(to_camera_room):
 		camera.set_camera_state(to_camera_room, STATE_EVERY)
 
 # Обновляет vision-позицию Felix и двигает её на камерах, если активен seen-режим.
@@ -192,7 +236,7 @@ func _apply_vision_move(next_room: int) -> void:
 	vision_prev = vision_cur
 	vision_cur = next_room
 	if not true_vision:
-		_sync_camera_move(vision_prev, vision_cur)
+		_resync_camera_presence()
 
 # Выполняет один шаг Felix с разделением real/vision слоёв.
 func _move_to_room(target_room: int, move_step: int = 1, log_name: String = "") -> void:
@@ -205,7 +249,7 @@ func _move_to_room(target_room: int, move_step: int = 1, log_name: String = "") 
 	step += move_step
 
 	if true_vision:
-		_sync_camera_move(real_prev, real_cur)
+		_resync_camera_presence()
 
 	if log_name.is_empty():
 		log_name = _get_camera_room_name(target_room)
@@ -255,12 +299,8 @@ func set_true_vision(enabled: bool) -> void:
 		true_vision = enabled
 		return
 
-	if enabled:
-		_sync_camera_move(vision_cur, real_cur)
-	else:
-		_sync_camera_move(real_cur, vision_cur)
-
 	true_vision = enabled
+	_resync_camera_presence()
 
 # Публичный setter режима methode с валидацией допустимых значений.
 func set_methode(mode: String) -> void:

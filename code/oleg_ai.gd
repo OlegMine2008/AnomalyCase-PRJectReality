@@ -12,8 +12,8 @@ const DESYNC_MIN_CHANCE := 0.12
 const DESYNC_MAX_CHANCE := 0.42
 
 const LOGIC_TO_CAMERA_ROOM := {
-	"Lab": "Back",
-	"Secret": "Back",
+	"Lab": "Lab",
+	"Secret": "Secret",
 }
 const DESYNC_TRIGGER_ROOMS := ["Lab", "Secret", "Behind"]
 
@@ -69,7 +69,7 @@ func b():
 	real_cur = next
 	_moves_since_desync += 1
 	if true_vision:
-		_sync_camera_move(real_prev, real_cur)
+		_resync_camera_presence()
 	print("В реальности Олег находится в ", real_cur)
 	_try_enable_desync(_is_desync_trigger_room(real_cur))
 
@@ -82,7 +82,48 @@ func _apply_vision_move(next_room: String) -> void:
 	vision_prev = vision_cur
 	vision_cur = next_room
 	if not true_vision:
-		_sync_camera_move(vision_prev, vision_cur)
+		_resync_camera_presence()
+
+func _get_display_room() -> String:
+	return real_cur if true_vision else vision_cur
+
+# Полная пересборка надёжнее инкрементального перехода при рассинхроне слоёв.
+func _resync_camera_presence() -> void:
+	if cams == null and not _ensure_cams():
+		return
+
+	var display_room := _get_display_room()
+	var display_camera_room := _get_camera_room_name(display_room)
+	var affected_camera_rooms: Dictionary[String, bool] = {}
+
+	for room_name in cams.current_camera_state.keys():
+		var camera_room := String(room_name)
+		affected_camera_rooms[camera_room] = true
+		var state := int(cams.current_camera_state[camera_room])
+		if state == STATE_OLEG:
+			cams.set_camera_state(camera_room, STATE_EMPTY)
+		elif state == STATE_EVERY:
+			cams.set_camera_state(camera_room, STATE_FELIX)
+
+	if display_camera_room == "":
+		for camera_room in affected_camera_rooms.keys():
+			cams.refresh_camera_feed(camera_room, true)
+		return
+
+	var display_state := _get_room_state(display_camera_room)
+	if display_state == STATE_EMPTY:
+		cams.set_camera_state(display_camera_room, STATE_OLEG)
+	elif display_state == STATE_FELIX:
+		if _room_supports_every_state(display_camera_room):
+			cams.set_camera_state(display_camera_room, STATE_EVERY)
+		else:
+			# На камерах без Every сохраняем текущий минимальный приоритет Oleg.
+			cams.set_camera_state(display_camera_room, STATE_OLEG)
+
+	# Back — единый визуальный feed для Lab и Secret, поэтому обновляем по camera-room.
+	affected_camera_rooms[display_camera_room] = true
+	for camera_room in affected_camera_rooms.keys():
+		cams.refresh_camera_feed(camera_room, true)
 
 # Возвращает следующую логическую комнату для real-перемещения.
 func _get_next_room(current_room: String, previous_room: String) -> String:
@@ -126,6 +167,7 @@ func _filter_neighbors(neighbors: Array, previous_room: String) -> Array[String]
 	var best_neighbors: Array[String] = []
 	for neighbor in candidate_neighbors:
 		var distance := _get_distance_to_office(neighbor)
+		if neighbor == "Lab" or neighbor == "Secret" or neighbor == "Behind": distance += 2.0
 		if distance < best_distance:
 			best_distance = distance
 			best_neighbors = [neighbor]
@@ -252,12 +294,8 @@ func set_true_vision(enabled: bool) -> void:
 		true_vision = enabled
 		return
 
-	if enabled:
-		_sync_camera_move(vision_cur, real_cur)
-	else:
-		_sync_camera_move(real_cur, vision_cur)
-
 	true_vision = enabled
+	_resync_camera_presence()
 
 # Публичный setter для режима methode с валидацией допустимых значений.
 func set_methode(mode: String) -> void:
