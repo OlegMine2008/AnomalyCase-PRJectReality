@@ -230,37 +230,37 @@ func _get_room_state(room_name: String) -> int:
 	return int(cams.current_camera_state[room_name])
 
 # Синхронизирует перемещение Oleg в состояниях камер (from -> to).
-func _sync_camera_move(from_room: String, to_room: String) -> void:
-	if cams == null and not _ensure_cams():
-		return
-
-	var from_camera_room := _get_camera_room_name(from_room)
-	var to_camera_room := _get_camera_room_name(to_room)
-	if from_camera_room == to_camera_room:
-		return
-
-	if from_camera_room != "":
-		var from_state := _get_room_state(from_camera_room)
-		if from_state == STATE_OLEG:
-			cams.set_camera_state(from_camera_room, STATE_EMPTY)
-		elif from_state == STATE_EVERY:
-			cams.set_camera_state(from_camera_room, STATE_FELIX)
-
-	if to_camera_room == "":
-		return
-
-	# Страховка от "двойного присутствия": удаляем Oleg из всех прочих комнат.
-	_clear_oleg_presence_except(to_camera_room)
-
-	var to_state := _get_room_state(to_camera_room)
-	if to_state == STATE_EMPTY:
-		cams.set_camera_state(to_camera_room, STATE_OLEG)
-	elif to_state == STATE_FELIX:
-		if _room_supports_every_state(to_camera_room):
-			cams.set_camera_state(to_camera_room, STATE_EVERY)
-		else:
-			# Если "Every" не поддержан текстурами комнаты, приоритет отдаём Oleg.
-			cams.set_camera_state(to_camera_room, STATE_OLEG)
+#func _sync_camera_move(from_room: String, to_room: String) -> void:
+#	if cams == null and not _ensure_cams():
+#		return
+#
+#	var from_camera_room := _get_camera_room_name(from_room)
+#	var to_camera_room := _get_camera_room_name(to_room)
+#	if from_camera_room == to_camera_room:
+#		return
+#
+#	if from_camera_room != "":
+#		var from_state := _get_room_state(from_camera_room)
+#		if from_state == STATE_OLEG:
+#			cams.set_camera_state(from_camera_room, STATE_EMPTY)
+#		elif from_state == STATE_EVERY:
+#			cams.set_camera_state(from_camera_room, STATE_FELIX)
+#
+#	if to_camera_room == "":
+#		return
+#
+#	# Страховка от "двойного присутствия": удаляем Oleg из всех прочих комнат.
+#	_clear_oleg_presence_except(to_camera_room)
+#
+#	var to_state := _get_room_state(to_camera_room)
+#	if to_state == STATE_EMPTY:
+#		cams.set_camera_state(to_camera_room, STATE_OLEG)
+#	elif to_state == STATE_FELIX:
+#		if _room_supports_every_state(to_camera_room):
+#			cams.set_camera_state(to_camera_room, STATE_EVERY)
+#		else:
+#			# Если "Every" не поддержан текстурами комнаты, приоритет отдаём Oleg.
+#			cams.set_camera_state(to_camera_room, STATE_OLEG)
 
 # Гарантированно оставляет Oleg только в одной комнате камеры.
 func _clear_oleg_presence_except(except_camera_room: String) -> void:

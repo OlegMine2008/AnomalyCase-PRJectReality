@@ -2,15 +2,15 @@ extends Node
 
 #@export_range(0, 20, 1) var oleg_level: int = 0
 #@export_range(0, 20, 1) var felix_level: int = 0
-var oleg_level = 4
-var felix_level = 3
+var oleg_level = 3
+var felix_level = 1
 
 # Инициализирует генератор случайности и стартовые уровни ИИ.
 func _ready() -> void:
 	randomize()
 	_initialize_char_levels()
 
-# Прокидывает уровни сложности и ссылки на камеры в ноды противников.
+# Прокидывает уровни сложности и ссылки на камеры в ноды противников.	
 func _initialize_char_levels() -> void:
 	var cams: Cameras = get_node_or_null("../Cam_Sys/Cam_Buttons") as Cameras
 	var oleg: Node = get_node_or_null("OlegTheCat")

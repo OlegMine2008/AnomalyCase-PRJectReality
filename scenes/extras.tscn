@@ -1,0 +1,44 @@
+[gd_scene format=3 uid="uid://b7fsb3jrrw6i2"]
+
+[ext_resource type="Texture2D" uid="uid://dg6rdwsj2in51" path="res://images/Menu/extras_menu.png" id="1_cv5r7"]
+[ext_resource type="Texture2D" uid="uid://dv7rpp5mwvm8a" path="res://images/buttons/exit1.png" id="2_xs1if"]
+[ext_resource type="Texture2D" uid="uid://sx5pkxj3p2ve" path="res://images/buttons/exit3.png" id="3_iqkc7"]
+[ext_resource type="Texture2D" uid="uid://deqpk0y7b1up7" path="res://images/buttons/exit2.png" id="4_chi0u"]
+
+[node name="Control" type="Control" unique_id=1441797344]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Back" type="Sprite2D" parent="." unique_id=1272334152]
+position = Vector2(575, 324)
+texture = ExtResource("1_cv5r7")
+
+[node name="OptionButton" type="OptionButton" parent="." unique_id=1243186522]
+layout_mode = 0
+offset_left = 23.0
+offset_top = 113.0
+offset_right = 311.0
+offset_bottom = 144.0
+alignment = 1
+selected = 0
+item_count = 3
+popup/item_0/text = "Characters"
+popup/item_0/id = 0
+popup/item_1/text = "Future Content"
+popup/item_1/id = 1
+popup/item_2/text = "Scrapped Content"
+popup/item_2/id = 2
+
+[node name="TextureButton" type="TextureButton" parent="." unique_id=1534492766]
+layout_mode = 0
+offset_left = 5.0
+offset_top = 572.0
+offset_right = 96.0
+offset_bottom = 612.0
+texture_normal = ExtResource("2_xs1if")
+texture_pressed = ExtResource("3_iqkc7")
+texture_hover = ExtResource("4_chi0u")

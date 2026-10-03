@@ -64,7 +64,7 @@ animations = [{
 "duration": 1.0,
 "texture": ExtResource("11_x3ega")
 }],
-"loop": true,
+"loop": 1,
 "name": &"default",
 "speed": 15.0
 }]
@@ -93,7 +93,7 @@ animations = [{
 "duration": 1.0,
 "texture": ExtResource("38_4v0b0")
 }],
-"loop": true,
+"loop": 1,
 "name": &"default",
 "speed": 5.0
 }]
@@ -119,6 +119,7 @@ shadow_enabled = true
 omni_range = 11.727
 
 [node name="Flashlight" type="SpotLight3D" parent="." unique_id=609174126]
+transform = Transform3D(0.43530697, 0, 0.9002821, 0, 1, 0, -0.9002821, 0, 0.43530697, 0, 0, 0)
 shadow_enabled = true
 spot_range = 18.0
 spot_attenuation = -0.6

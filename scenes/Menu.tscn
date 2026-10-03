@@ -1,0 +1,58 @@
+[gd_scene format=3 uid="uid://cppk5nrtrpag7"]
+
+[ext_resource type="Texture2D" uid="uid://cxf2sgiidvjwi" path="res://images/Menu/OSMenu.png" id="1_xdvgc"]
+[ext_resource type="Texture2D" uid="uid://bv2x68y04ubc" path="res://images/Menu/SecRec.png" id="2_upctu"]
+[ext_resource type="Texture2D" uid="uid://cigx2ifkt2h37" path="res://images/Menu/TurnOff.png" id="3_11y2r"]
+[ext_resource type="Texture2D" uid="uid://bt1yvh57764ti" path="res://images/Menu/FUN.png" id="3_jmdev"]
+[ext_resource type="Texture2D" uid="uid://b8qfpb5dax73m" path="res://images/Menu/docsextra.png" id="3_o0tnf"]
+
+[node name="Control" type="Control" unique_id=760600107]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Back" type="Sprite2D" parent="." unique_id=1822166572]
+position = Vector2(577, 327)
+texture = ExtResource("1_xdvgc")
+
+[node name="Buttons" type="Control" parent="." unique_id=1877672246]
+anchors_preset = 0
+offset_right = 1151.0
+offset_bottom = 649.0
+
+[node name="CamRecords" type="TextureButton" parent="Buttons" unique_id=245314373]
+layout_mode = 0
+offset_left = 53.0
+offset_top = 259.0
+offset_right = 171.0
+offset_bottom = 319.0
+texture_normal = ExtResource("2_upctu")
+stretch_mode = 0
+
+[node name="F_U_N_" type="TextureButton" parent="Buttons" unique_id=1745329882]
+layout_mode = 0
+offset_left = 561.0
+offset_top = 253.0
+offset_right = 649.0
+offset_bottom = 329.0
+texture_normal = ExtResource("3_jmdev")
+
+[node name="Extras" type="TextureButton" parent="Buttons" unique_id=1669692897]
+layout_mode = 0
+offset_left = 360.0
+offset_top = 407.0
+offset_right = 436.0
+offset_bottom = 491.0
+texture_normal = ExtResource("3_o0tnf")
+stretch_mode = 0
+
+[node name="ExitButton" type="TextureButton" parent="Buttons" unique_id=1907901167]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 540.0
+offset_right = 116.0
+offset_bottom = 580.0
+texture_normal = ExtResource("3_11y2r")
